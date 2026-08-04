@@ -1,0 +1,596 @@
+# GreenRefactor — Benchmark Repository Configuration
+# 15 open-source repos per language (120 total).
+# Clone repos via: python agents/ingestion_agent.py add --language <lang> --url <url> --entrypoint <file> --name <name>
+# Or bulk clone via: python agents/ingestion_agent.py bulk --manifest repos_manifest.json
+#
+# NOTE: entrypoints are best-guess primary source files for pattern scanning.
+# Adjust per-repo after cloning if a different file is more appropriate.
+
+python:
+  patterns:
+    - early_termination
+    - avoid_redundant_computation
+    - batch_operations
+    - cache_reuse
+    - offload_to_native
+    - high_perf_libraries
+    - high_perf_data_structures
+    - swap_library_impl
+  repos:
+    - name: TheAlgorithms_Python
+      local_path: repos/python/TheAlgorithms_Python
+      entrypoint: sorts/merge_sort.py
+      workload_entrypoint: workloads/python/TheAlgorithms_Python_driver.py
+      url: https://github.com/TheAlgorithms/Python
+    - name: requests
+      local_path: repos/python/requests
+      entrypoint: src/requests/adapters.py
+      url: https://github.com/psf/requests
+    - name: flask
+      local_path: repos/python/flask
+      entrypoint: src/flask/app.py
+      url: https://github.com/pallets/flask
+    - name: click
+      local_path: repos/python/click
+      entrypoint: src/click/core.py
+      url: https://github.com/pallets/click
+    - name: rich
+      local_path: repos/python/rich
+      entrypoint: rich/console.py
+      url: https://github.com/Textualize/rich
+    - name: httpx
+      local_path: repos/python/httpx
+      entrypoint: httpx/_client.py
+      url: https://github.com/encode/httpx
+    - name: faker
+      local_path: repos/python/faker
+      entrypoint: faker/proxy.py
+      url: https://github.com/joke2k/faker
+    - name: gunicorn
+      local_path: repos/python/gunicorn
+      entrypoint: gunicorn/workers/base.py
+      url: https://github.com/benoitc/gunicorn
+    - name: typer
+      local_path: repos/python/typer
+      entrypoint: typer/main.py
+      url: https://github.com/tiangolo/typer
+    - name: pydantic
+      local_path: repos/python/pydantic
+      entrypoint: pydantic/main.py
+      url: https://github.com/pydantic/pydantic
+    - name: tqdm
+      local_path: repos/python/tqdm
+      entrypoint: tqdm/std.py
+      workload_entrypoint: workloads/python/tqdm_driver.py
+      url: https://github.com/tqdm/tqdm
+    - name: black
+      local_path: repos/python/black
+      entrypoint: src/black/__init__.py
+      workload_entrypoint: workloads/python/black_driver.py
+      url: https://github.com/psf/black
+    - name: sqlalchemy
+      local_path: repos/python/sqlalchemy
+      entrypoint: lib/sqlalchemy/engine/base.py
+      url: https://github.com/sqlalchemy/sqlalchemy
+    - name: scrapy
+      local_path: repos/python/scrapy
+      entrypoint: scrapy/core/engine.py
+      url: https://github.com/scrapy/scrapy
+    - name: tornado
+      local_path: repos/python/tornado
+      entrypoint: tornado/ioloop.py
+      url: https://github.com/tornadoweb/tornado
+
+javascript:
+  patterns:
+    - early_termination
+    - avoid_redundant_computation
+    - batch_operations
+    - cache_reuse
+    - offload_to_native
+    - high_perf_libraries
+    - high_perf_data_structures
+    - swap_library_impl
+  repos:
+    - name: TheAlgorithms_Javascript
+      local_path: repos/javascript/TheAlgorithms_Javascript
+      entrypoint: Sorts/MergeSort.js
+      workload_entrypoint: workloads/javascript/TheAlgorithms_Javascript_driver.js
+      url: https://github.com/TheAlgorithms/Javascript
+    - name: lodash
+      local_path: repos/javascript/lodash
+      entrypoint: lodash.js
+      workload_entrypoint: workloads/javascript/lodash_driver.js
+      url: https://github.com/lodash/lodash
+    - name: axios
+      local_path: repos/javascript/axios
+      entrypoint: lib/axios.js
+      url: https://github.com/axios/axios
+    - name: express
+      local_path: repos/javascript/express
+      entrypoint: lib/router/index.js
+      url: https://github.com/expressjs/express
+    - name: chart_js
+      local_path: repos/javascript/chart_js
+      entrypoint: src/core/core.controller.js
+      url: https://github.com/chartjs/Chart.js
+    - name: moment
+      local_path: repos/javascript/moment
+      entrypoint: src/moment.js
+      url: https://github.com/moment/moment
+    - name: socket_io
+      local_path: repos/javascript/socket_io
+      entrypoint: lib/index.js
+      url: https://github.com/socketio/socket.io
+    - name: d3
+      local_path: repos/javascript/d3
+      entrypoint: src/index.js
+      url: https://github.com/d3/d3
+    - name: webpack
+      local_path: repos/javascript/webpack
+      entrypoint: lib/Compiler.js
+      url: https://github.com/webpack/webpack
+    - name: eslint
+      local_path: repos/javascript/eslint
+      entrypoint: lib/linter/linter.js
+      url: https://github.com/eslint/eslint
+    - name: commander
+      local_path: repos/javascript/commander
+      entrypoint: lib/commander.js
+      url: https://github.com/tj/commander.js
+    - name: jquery
+      local_path: repos/javascript/jquery
+      entrypoint: src/jquery.js
+      url: https://github.com/jquery/jquery
+    - name: vue
+      local_path: repos/javascript/vue
+      entrypoint: src/core/index.js
+      url: https://github.com/vuejs/vue
+    - name: koa
+      local_path: repos/javascript/koa
+      entrypoint: lib/application.js
+      url: https://github.com/koajs/koa
+    - name: react
+      local_path: repos/javascript/react
+      entrypoint: packages/react/src/React.js
+      url: https://github.com/facebook/react
+
+java:
+  patterns:
+    - early_termination
+    - avoid_redundant_computation
+    - batch_operations
+    - cache_reuse
+    - offload_to_native
+    - high_perf_libraries
+    - high_perf_data_structures
+    - swap_library_impl
+  repos:
+    - name: TheAlgorithms_Java
+      local_path: repos/java/TheAlgorithms_Java
+      entrypoint: src/main/java/com/thealgorithms/sorts/MergeSort.java
+      workload_entrypoint: workloads/java/TheAlgorithms_Java_Driver.java
+      url: https://github.com/TheAlgorithms/Java
+    - name: guava
+      local_path: repos/java/guava
+      entrypoint: guava/src/com/google/common/collect/ImmutableList.java
+      url: https://github.com/google/guava
+    - name: commons_lang
+      local_path: repos/java/commons_lang
+      entrypoint: src/main/java/org/apache/commons/lang3/StringUtils.java
+      url: https://github.com/apache/commons-lang
+    - name: jsoup
+      local_path: repos/java/jsoup
+      entrypoint: src/main/java/org/jsoup/parser/HtmlTreeBuilder.java
+      url: https://github.com/jhy/jsoup
+    - name: junit4
+      local_path: repos/java/junit4
+      entrypoint: src/main/java/org/junit/runners/BlockJUnit4ClassRunner.java
+      url: https://github.com/junit-team/junit4
+    - name: java_design_patterns
+      local_path: repos/java/java_design_patterns
+      entrypoint: singleton/src/main/java/com/iluwatar/singleton/App.java
+      url: https://github.com/iluwatar/java-design-patterns
+    - name: rxjava
+      local_path: repos/java/rxjava
+      entrypoint: src/main/java/io/reactivex/rxjava3/core/Observable.java
+      url: https://github.com/ReactiveX/RxJava
+    - name: gson
+      local_path: repos/java/gson
+      entrypoint: gson/src/main/java/com/google/gson/Gson.java
+      url: https://github.com/google/gson
+    - name: commons_io
+      local_path: repos/java/commons_io
+      entrypoint: src/main/java/org/apache/commons/io/FileUtils.java
+      url: https://github.com/apache/commons-io
+    - name: commons_collections
+      local_path: repos/java/commons_collections
+      entrypoint: src/main/java/org/apache/commons/collections4/CollectionUtils.java
+      url: https://github.com/apache/commons-collections
+    - name: okhttp
+      local_path: repos/java/okhttp
+      entrypoint: okhttp/src/main/kotlin/okhttp3/OkHttpClient.kt
+      url: https://github.com/square/okhttp
+    - name: retrofit
+      local_path: repos/java/retrofit
+      entrypoint: retrofit/src/main/java/retrofit2/Retrofit.java
+      url: https://github.com/square/retrofit
+    - name: commons_csv
+      local_path: repos/java/commons_csv
+      entrypoint: src/main/java/org/apache/commons/csv/CSVParser.java
+      url: https://github.com/apache/commons-csv
+    - name: jackson_databind
+      local_path: repos/java/jackson_databind
+      entrypoint: src/main/java/com/fasterxml/jackson/databind/ObjectMapper.java
+      url: https://github.com/FasterXML/jackson-databind
+    - name: vertx
+      local_path: repos/java/vertx
+      entrypoint: vertx-core/src/main/java/io/vertx/core/impl/VertxImpl.java
+      url: https://github.com/eclipse-vertx/vert.x
+
+c:
+  patterns:
+    - early_termination
+    - avoid_redundant_computation
+    - batch_operations
+    - cache_reuse
+    - offload_to_native
+    - high_perf_libraries
+    - high_perf_data_structures
+    - swap_library_impl
+  repos:
+    - name: TheAlgorithms_C
+      local_path: repos/c/TheAlgorithms_C
+      entrypoint: sorting/merge_sort.c
+      workload_entrypoint: workloads/c/TheAlgorithms_C_driver.c
+      url: https://github.com/TheAlgorithms/C
+    - name: stb
+      local_path: repos/c/stb
+      entrypoint: stb_image.h
+      url: https://github.com/nothings/stb
+    - name: cJSON
+      local_path: repos/c/cJSON
+      entrypoint: cJSON.c
+      workload_entrypoint: workloads/c/cJSON_driver.c
+      url: https://github.com/DaveGamble/cJSON
+    - name: lz4
+      local_path: repos/c/lz4
+      entrypoint: lib/lz4.c
+      url: https://github.com/lz4/lz4
+    - name: zlib
+      local_path: repos/c/zlib
+      entrypoint: deflate.c
+      url: https://github.com/madler/zlib
+    - name: mongoose
+      local_path: repos/c/mongoose
+      entrypoint: mongoose.c
+      url: https://github.com/cesanta/mongoose
+    - name: sqlite
+      local_path: repos/c/sqlite
+      entrypoint: src/btree.c
+      url: https://github.com/sqlite/sqlite
+    - name: redis
+      local_path: repos/c/redis
+      entrypoint: src/server.c
+      url: https://github.com/redis/redis
+    - name: jq
+      local_path: repos/c/jq
+      entrypoint: src/execute.c
+      url: https://github.com/jqlang/jq
+    - name: tiny_aes
+      local_path: repos/c/tiny_aes
+      entrypoint: aes.c
+      url: https://github.com/kokke/tiny-AES-c
+    - name: zstd
+      local_path: repos/c/zstd
+      entrypoint: lib/compress/zstd_compress.c
+      url: https://github.com/facebook/zstd
+    - name: curl
+      local_path: repos/c/curl
+      entrypoint: lib/transfer.c
+      url: https://github.com/curl/curl
+    - name: libuv
+      local_path: repos/c/libuv
+      entrypoint: src/unix/core.c
+      url: https://github.com/libuv/libuv
+    - name: uthash
+      local_path: repos/c/uthash
+      entrypoint: src/uthash.h
+      url: https://github.com/troydhanson/uthash
+    - name: lua
+      local_path: repos/c/lua
+      entrypoint: lvm.c
+      url: https://github.com/lua/lua
+
+cpp:
+  patterns:
+    - early_termination
+    - avoid_redundant_computation
+    - batch_operations
+    - cache_reuse
+    - offload_to_native
+    - high_perf_libraries
+    - high_perf_data_structures
+    - swap_library_impl
+  repos:
+    - name: TheAlgorithms_CPP
+      local_path: repos/cpp/TheAlgorithms_CPP
+      entrypoint: sorting/merge_sort.cpp
+      workload_entrypoint: workloads/cpp/TheAlgorithms_CPP_driver.cpp
+      url: https://github.com/TheAlgorithms/C-Plus-Plus
+    - name: nlohmann_json
+      local_path: repos/cpp/nlohmann_json
+      entrypoint: single_include/nlohmann/json.hpp
+      url: https://github.com/nlohmann/json
+    - name: simdjson
+      local_path: repos/cpp/simdjson
+      entrypoint: src/simdjson.cpp
+      url: https://github.com/simdjson/simdjson
+    - name: fmt
+      local_path: repos/cpp/fmt
+      entrypoint: src/format.cc
+      workload_entrypoint: workloads/cpp/fmt_driver.cpp
+      url: https://github.com/fmtlib/fmt
+    - name: catch2
+      local_path: repos/cpp/catch2
+      entrypoint: src/catch2/catch_session.cpp
+      url: https://github.com/catchorg/Catch2
+    - name: spdlog
+      local_path: repos/cpp/spdlog
+      entrypoint: src/spdlog.cpp
+      url: https://github.com/gabime/spdlog
+    - name: abseil_cpp
+      local_path: repos/cpp/abseil_cpp
+      entrypoint: absl/strings/str_cat.cc
+      url: https://github.com/abseil/abseil-cpp
+    - name: leveldb
+      local_path: repos/cpp/leveldb
+      entrypoint: db/db_impl.cc
+      url: https://github.com/google/leveldb
+    - name: fifo_map
+      local_path: repos/cpp/fifo_map
+      entrypoint: src/fifo_map.hpp
+      url: https://github.com/nlohmann/fifo_map
+    - name: rapidjson
+      local_path: repos/cpp/rapidjson
+      entrypoint: include/rapidjson/document.h
+      url: https://github.com/Tencent/rapidjson
+    - name: googletest
+      local_path: repos/cpp/googletest
+      entrypoint: googletest/src/gtest.cc
+      url: https://github.com/google/googletest
+    - name: cli11
+      local_path: repos/cpp/cli11
+      entrypoint: include/CLI/App.hpp
+      url: https://github.com/CLIUtils/CLI11
+    - name: entt
+      local_path: repos/cpp/entt
+      entrypoint: src/entt/entity/registry.hpp
+      url: https://github.com/skypjack/entt
+    - name: taskflow
+      local_path: repos/cpp/taskflow
+      entrypoint: taskflow/core/executor.hpp
+      url: https://github.com/taskflow/taskflow
+    - name: ncnn
+      local_path: repos/cpp/ncnn
+      entrypoint: src/net.cpp
+      url: https://github.com/Tencent/ncnn
+
+go:
+  patterns:
+    - early_termination
+    - avoid_redundant_computation
+    - batch_operations
+    - cache_reuse
+    - offload_to_native
+    - high_perf_libraries
+    - high_perf_data_structures
+    - swap_library_impl
+  repos:
+    - name: TheAlgorithms_Go
+      local_path: repos/go/TheAlgorithms_Go
+      entrypoint: sort/mergesort.go
+      workload_entrypoint: workloads/go/TheAlgorithms_Go_driver.go
+      url: https://github.com/TheAlgorithms/Go
+    - name: gin
+      local_path: repos/go/gin
+      entrypoint: gin.go
+      url: https://github.com/gin-gonic/gin
+    - name: gorilla_mux
+      local_path: repos/go/gorilla_mux
+      entrypoint: mux.go
+      url: https://github.com/gorilla/mux
+    - name: cobra
+      local_path: repos/go/cobra
+      entrypoint: command.go
+      url: https://github.com/spf13/cobra
+    - name: viper
+      local_path: repos/go/viper
+      entrypoint: viper.go
+      url: https://github.com/spf13/viper
+    - name: logrus
+      local_path: repos/go/logrus
+      entrypoint: logrus.go
+      url: https://github.com/sirupsen/logrus
+    - name: fiber
+      local_path: repos/go/fiber
+      entrypoint: app.go
+      url: https://github.com/gofiber/fiber
+    - name: fasthttp
+      local_path: repos/go/fasthttp
+      entrypoint: server.go
+      url: https://github.com/valyala/fasthttp
+    - name: urfave_cli
+      local_path: repos/go/urfave_cli
+      entrypoint: app.go
+      url: https://github.com/urfave/cli
+    - name: go_redis
+      local_path: repos/go/go_redis
+      entrypoint: redis.go
+      url: https://github.com/go-redis/redis
+    - name: badger
+      local_path: repos/go/badger
+      entrypoint: db.go
+      url: https://github.com/dgraph-io/badger
+    - name: zap
+      local_path: repos/go/zap
+      entrypoint: logger.go
+      url: https://github.com/uber-go/zap
+    - name: echo
+      local_path: repos/go/echo
+      entrypoint: echo.go
+      url: https://github.com/labstack/echo
+    - name: bbolt
+      local_path: repos/go/bbolt
+      entrypoint: db.go
+      url: https://github.com/etcd-io/bbolt
+    - name: prometheus
+      local_path: repos/go/prometheus
+      entrypoint: cmd/prometheus/main.go
+      url: https://github.com/prometheus/prometheus
+
+rust:
+  patterns:
+    - early_termination
+    - avoid_redundant_computation
+    - batch_operations
+    - cache_reuse
+    - offload_to_native
+    - high_perf_libraries
+    - high_perf_data_structures
+    - swap_library_impl
+  repos:
+    - name: TheAlgorithms_Rust
+      local_path: repos/rust/TheAlgorithms_Rust
+      entrypoint: src/sorting/merge_sort.rs
+      url: https://github.com/TheAlgorithms/Rust
+    - name: ripgrep
+      local_path: repos/rust/ripgrep
+      entrypoint: crates/core/main.rs
+      workload_entrypoint: workloads/rust/ripgrep_driver.rs
+      url: https://github.com/BurntSushi/ripgrep
+    - name: serde
+      local_path: repos/rust/serde
+      entrypoint: serde/src/lib.rs
+      url: https://github.com/serde-rs/serde
+    - name: tokio
+      local_path: repos/rust/tokio
+      entrypoint: tokio/src/runtime/runtime.rs
+      url: https://github.com/tokio-rs/tokio
+    - name: mdbook
+      local_path: repos/rust/mdbook
+      entrypoint: src/main.rs
+      url: https://github.com/rust-lang/mdBook
+    - name: clap
+      local_path: repos/rust/clap
+      entrypoint: clap_builder/src/builder/command.rs
+      url: https://github.com/clap-rs/clap
+    - name: rayon
+      local_path: repos/rust/rayon
+      entrypoint: rayon-core/src/lib.rs
+      url: https://github.com/rayon-rs/rayon
+    - name: hyper
+      local_path: repos/rust/hyper
+      entrypoint: src/client/conn/http1.rs
+      url: https://github.com/hyperium/hyper
+    - name: actix_web
+      local_path: repos/rust/actix_web
+      entrypoint: actix-web/src/app.rs
+      url: https://github.com/actix/actix-web
+    - name: bat
+      local_path: repos/rust/bat
+      entrypoint: src/main.rs
+      url: https://github.com/sharkdp/bat
+    - name: fd
+      local_path: repos/rust/fd
+      entrypoint: src/main.rs
+      url: https://github.com/sharkdp/fd
+    - name: starship
+      local_path: repos/rust/starship
+      entrypoint: src/main.rs
+      url: https://github.com/starship/starship
+    - name: rustlings
+      local_path: repos/rust/rustlings
+      entrypoint: src/main.rs
+      url: https://github.com/rust-lang/rustlings
+    - name: alacritty
+      local_path: repos/rust/alacritty
+      entrypoint: alacritty/src/main.rs
+      url: https://github.com/alacritty/alacritty
+    - name: tikv
+      local_path: repos/rust/tikv
+      entrypoint: src/server/server.rs
+      url: https://github.com/tikv/tikv
+
+csharp:
+  patterns:
+    - early_termination
+    - avoid_redundant_computation
+    - batch_operations
+    - cache_reuse
+    - offload_to_native
+    - high_perf_libraries
+    - high_perf_data_structures
+    - swap_library_impl
+  repos:
+    - name: TheAlgorithms_CSharp
+      local_path: repos/csharp/TheAlgorithms_CSharp
+      entrypoint: Algorithms/Sorters/Comparison/MergeSorter.cs
+      workload_entrypoint: workloads/csharp/TheAlgorithms_CSharp_Driver.cs
+      url: https://github.com/TheAlgorithms/C-Sharp
+    - name: automapper
+      local_path: repos/csharp/automapper
+      entrypoint: src/AutoMapper/Mapper.cs
+      url: https://github.com/AutoMapper/AutoMapper
+    - name: newtonsoft_json
+      local_path: repos/csharp/newtonsoft_json
+      entrypoint: Src/Newtonsoft.Json/JsonConvert.cs
+      url: https://github.com/JamesNK/Newtonsoft.Json
+    - name: serilog
+      local_path: repos/csharp/serilog
+      entrypoint: src/Serilog/Core/Logger.cs
+      url: https://github.com/serilog/serilog
+    - name: restsharp
+      local_path: repos/csharp/restsharp
+      entrypoint: src/RestSharp/RestClient.cs
+      url: https://github.com/restsharp/RestSharp
+    - name: moq
+      local_path: repos/csharp/moq
+      entrypoint: src/Moq/Mock.cs
+      url: https://github.com/moq/moq
+    - name: fluentvalidation
+      local_path: repos/csharp/fluentvalidation
+      entrypoint: src/FluentValidation/AbstractValidator.cs
+      url: https://github.com/FluentValidation/FluentValidation
+    - name: nlog
+      local_path: repos/csharp/nlog
+      entrypoint: src/NLog/Logger.cs
+      url: https://github.com/NLog/NLog
+    - name: xunit
+      local_path: repos/csharp/xunit
+      entrypoint: src/xunit.v3.core/Framework/TheoryDiscoverer.cs
+      url: https://github.com/xunit/xunit
+    - name: polly
+      local_path: repos/csharp/polly
+      entrypoint: src/Polly.Core/ResiliencePipeline.cs
+      url: https://github.com/App-vNext/Polly
+    - name: humanizer
+      local_path: repos/csharp/humanizer
+      entrypoint: src/Humanizer/StringHumanizeExtensions.cs
+      url: https://github.com/Humanizr/Humanizer
+    - name: masstransit
+      local_path: repos/csharp/masstransit
+      entrypoint: src/MassTransit/MassTransit/Bus.cs
+      url: https://github.com/MassTransit/MassTransit
+    - name: stateless
+      local_path: repos/csharp/stateless
+      entrypoint: src/Stateless/StateMachine.cs
+      url: https://github.com/dotnet-state-machine/stateless
+    - name: akka_net
+      local_path: repos/csharp/akka_net
+      entrypoint: src/core/Akka/Actor/ActorBase.cs
+      url: https://github.com/akkadotnet/akka.net
+    - name: reactiveui
+      local_path: repos/csharp/reactiveui
+      entrypoint: src/ReactiveUI/ReactiveObject.cs
+      url: https://github.com/reactiveui/ReactiveUI

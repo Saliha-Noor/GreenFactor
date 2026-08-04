@@ -1,0 +1,23 @@
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+env/
+*.egg-info/
+.pytest_cache/
+
+# local env / secrets
+.env
+*.local
+
+# build artifacts produced by the build_run_agent adapters
+a_out_energy
+go_energy_bin
+_greenrefactor_driver_proj/
+bin/
+obj/
+
+# OS cruft
+.DS_Store
+Thumbs.db

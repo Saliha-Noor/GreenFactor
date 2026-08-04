@@ -1,0 +1,385 @@
+/* ============================================================
+   GreenRefactor — "Instrument Panel" Design System
+   A measurement-instrument aesthetic for an energy-auditing tool:
+   carbon housing, phosphor-green readouts, monospaced data.
+   ============================================================ */
+
+:root {
+  /* ---- Instrument Panel (Dark) ---- */
+  --bg-dark: #0A0C08;
+  --bg-card: #12140E;
+  --bg-card-hover: #181B12;
+  --bg-subtle: #16180F;
+  --bg-inset: #060704;
+
+  --border-color: rgba(205, 255, 180, 0.08);
+  --border-active: rgba(205, 255, 180, 0.20);
+
+  --emerald-primary: #55F2A0;
+  --emerald-hover: #33D680;
+  --emerald-subtle: rgba(85, 242, 160, 0.12);
+
+  --indigo-primary: #9C8CFF;
+  --indigo-subtle: rgba(156, 140, 255, 0.12);
+
+  --amber-primary: #FFB020;
+  --amber-subtle: rgba(255, 176, 32, 0.12);
+
+  --rose-primary: #FF6B6B;
+  --rose-subtle: rgba(255, 107, 107, 0.12);
+
+  --text-main: #EAF0E1;
+  --text-muted: #99A08C;
+  --text-dim: #656D57;
+
+  --code-bg: #060704;
+  --code-text: #D8E4C9;
+
+  --font-heading: 'Space Grotesk', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-body: 'IBM Plex Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-code: 'IBM Plex Mono', 'Fira Code', 'JetBrains Mono', monospace;
+
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+}
+
+[data-theme="light"] {
+  /* ---- Daylight Instrument (Light) ---- */
+  --bg-dark: #F6F7F1;
+  --bg-card: #FFFFFF;
+  --bg-card-hover: #F0F2E9;
+  --bg-subtle: #EEF0E6;
+  --bg-inset: #E9EBE0;
+
+  --border-color: #DEE3D2;
+  --border-active: #C3CBB4;
+
+  --emerald-primary: #0B8F51;
+  --emerald-hover: #077440;
+  --emerald-subtle: rgba(11, 143, 81, 0.09);
+
+  --indigo-primary: #5B4CE0;
+  --indigo-subtle: rgba(91, 76, 224, 0.09);
+
+  --amber-primary: #A8710A;
+  --amber-subtle: rgba(168, 113, 10, 0.1);
+
+  --rose-primary: #C7423B;
+  --rose-subtle: rgba(199, 66, 59, 0.1);
+
+  --text-main: #12160C;
+  --text-muted: #4C5340;
+  --text-dim: #767E68;
+
+  --code-bg: #EDEFE5;
+  --code-text: #12160C;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--bg-dark);
+  background-image:
+    radial-gradient(circle at 12% -10%, var(--emerald-subtle) 0%, transparent 32%),
+    linear-gradient(180deg, transparent 0%, transparent 100%);
+  color: var(--text-main);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+}
+
+/* Visible keyboard focus everywhere */
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, [tabindex]:focus-visible {
+  outline: 2px solid var(--emerald-primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 7px; height: 7px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-active); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--emerald-primary); }
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  letter-spacing: -0.01em;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+code, pre, kbd {
+  font-family: var(--font-code);
+}
+
+/* Tabular / instrument-style numeric readouts. Applied to KPI values,
+   joules, percentages, p-values — anywhere the app displays a measurement. */
+.stat-value {
+  font-family: var(--font-code);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+  color: var(--emerald-primary);
+  text-shadow: 0 0 18px var(--emerald-subtle);
+}
+
+/* ---------------- Inputs ---------------- */
+input, select, textarea {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background: var(--bg-inset);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  line-height: 1.4;
+  outline: none;
+  box-sizing: border-box;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.35);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: var(--emerald-primary);
+  background: var(--bg-card);
+  box-shadow: 0 0 0 3px var(--emerald-subtle);
+}
+
+input::placeholder, textarea::placeholder { color: var(--text-dim); }
+
+/* ---------------- Panels ---------------- */
+.glass-card {
+  position: relative;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.02) inset, 0 10px 30px -12px rgba(0, 0, 0, 0.5);
+  transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+}
+
+.glass-card:hover {
+  border-color: var(--border-active);
+}
+
+.glass-card-interactive:hover {
+  transform: translateY(-2px);
+}
+
+/* Signature element: instrument corner brackets. Used sparingly on
+   the handful of panels that anchor a screen (hero cards, KPI rows). */
+.panel-framed {
+  position: relative;
+}
+.panel-framed::before,
+.panel-framed::after {
+  content: '';
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  pointer-events: none;
+  opacity: 0.55;
+}
+.panel-framed::before {
+  top: -1px;
+  left: -1px;
+  border-top: 2px solid var(--emerald-primary);
+  border-left: 2px solid var(--emerald-primary);
+  border-top-left-radius: 4px;
+}
+.panel-framed::after {
+  bottom: -1px;
+  right: -1px;
+  border-bottom: 2px solid var(--emerald-primary);
+  border-right: 2px solid var(--emerald-primary);
+  border-bottom-right-radius: 4px;
+}
+
+/* ---------------- Buttons ---------------- */
+.btn-primary {
+  background: var(--emerald-primary);
+  color: #06170F;
+  border: none;
+  padding: 9px 18px;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 600;
+  font-family: var(--font-body);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+}
+
+.btn-primary:hover { background: var(--emerald-hover); box-shadow: 0 0 0 3px var(--emerald-subtle); }
+.btn-primary:active { transform: translateY(1px); }
+.btn-primary:disabled { opacity: 0.55; cursor: not-allowed; box-shadow: none; }
+
+.btn-secondary {
+  background: var(--bg-subtle);
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+  padding: 9px 18px;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 500;
+  font-family: var(--font-body);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.btn-secondary:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--border-active);
+}
+
+/* ---------------- Badges ---------------- */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 5px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  font-family: var(--font-code);
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.badge-emerald { background: var(--emerald-subtle); color: var(--emerald-primary); border: 1px solid var(--emerald-subtle); }
+.badge-indigo  { background: var(--indigo-subtle);  color: var(--indigo-primary);  border: 1px solid var(--indigo-subtle); }
+.badge-amber   { background: var(--amber-subtle);   color: var(--amber-primary);   border: 1px solid var(--amber-subtle); }
+.badge-rose    { background: var(--rose-subtle);    color: var(--rose-primary);    border: 1px solid var(--rose-subtle); }
+
+/* ---------------- Tab Navigation ---------------- */
+.tab-button {
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-weight: 500;
+  font-family: var(--font-body);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.15s ease;
+}
+
+.tab-button:hover {
+  color: var(--text-main);
+  background: var(--bg-subtle);
+}
+
+.tab-button.active {
+  color: var(--text-main);
+  background: var(--bg-subtle);
+  border-color: var(--border-active);
+  font-weight: 600;
+  box-shadow: inset 0 -2px 0 var(--emerald-primary);
+}
+
+/* ---------------- Code Blocks ---------------- */
+.code-block {
+  font-family: var(--font-code);
+  font-size: 0.825rem;
+  line-height: 1.55;
+  background: var(--code-bg);
+  color: var(--code-text);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  overflow-x: auto;
+  overflow-y: auto;
+  white-space: pre;
+  border: 1px solid var(--border-color);
+  box-sizing: border-box;
+}
+
+/* ---------------- Table ---------------- */
+.custom-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.875rem;
+  text-align: left;
+}
+
+.custom-table th {
+  background: var(--bg-subtle);
+  color: var(--text-dim);
+  font-size: 0.7rem;
+  font-weight: 600;
+  font-family: var(--font-code);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border-color);
+  white-space: nowrap;
+}
+
+.custom-table td {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-main);
+  vertical-align: middle;
+}
+
+.custom-table tbody tr { transition: background 0.15s ease; }
+.custom-table tbody tr:hover { background: var(--bg-card-hover); }
+.custom-table tbody tr:last-child td { border-bottom: none; }
+
+/* ---------------- Animations ---------------- */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in { animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+@keyframes slideInRight {
+  from { transform: translateX(24px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+.animate-spin { animation: spin 0.9s linear infinite; }
+
+/* Thin scanline accent bar — used at the top edge of primary panels
+   to reinforce the "instrument readout" identity without heavy decoration. */
+.scan-bar {
+  height: 2px;
+  width: 100%;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--emerald-primary) 0%, var(--indigo-primary) 55%, transparent 100%);
+  opacity: 0.7;
+}
+
+/* Subtle pulsing glow for the Help/FAQ tab button */
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 var(--emerald-subtle); }
+  50% { box-shadow: 0 0 12px 2px var(--emerald-subtle); }
+}
