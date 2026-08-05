@@ -28,7 +28,7 @@ def load_config(path: str) -> dict:
         return yaml.safe_load(f)
 
 
-def run_batch(language: str, config_path: str, runs_per_case: int = 30):
+def run_batch(language: str, config_path: str, runs_per_case: int = 30, max_hits: int = None):
     mode_file = os.path.join(os.path.dirname(__file__), "config", "measurement_mode.json")
     if not os.path.isfile(mode_file):
         info = env_detect.run_detection()
@@ -51,8 +51,8 @@ def run_batch(language: str, config_path: str, runs_per_case: int = 30):
         repo_path = os.path.join(os.path.dirname(__file__), repo["local_path"])
         entrypoint = repo["entrypoint"]
         workload_entrypoint = repo.get("workload_entrypoint")
-        print(f"  -> {repo_name}")
-        result = run_case(language, repo_path, entrypoint, repo_name, runs_per_case, workload_entrypoint=workload_entrypoint)
+        url = repo.get("url")
+        result = run_case(language, repo_path, entrypoint, repo_name, runs_per_case, workload_entrypoint=workload_entrypoint, max_hits=max_hits, url=url)
         status = result["status"]
         summary[status] = summary.get(status, 0) + 1
         print(f"     status: {status}")
@@ -68,5 +68,6 @@ if __name__ == "__main__":
     ])
     parser.add_argument("--config", default="config/repos.yaml")
     parser.add_argument("--runs-per-case", type=int, default=30)
+    parser.add_argument("--max-hits", type=int, default=None, help="Max pattern candidate hits to evaluate per repo")
     args = parser.parse_args()
-    run_batch(args.language, args.config, args.runs_per_case)
+    run_batch(args.language, args.config, args.runs_per_case, max_hits=args.max_hits)

@@ -79,22 +79,21 @@ for t_file in trash_files:
 if trash_count == 0:
     print("   ✓ No unnecessary scratch files found.")
 
-# 4. Clean Python bytecode and pytest caches
-print("\n4. Cleaning Python bytecode and test caches...")
-cache_dirs = (
-    glob.glob(os.path.join(project_root, "**", "__pycache__"), recursive=True) +
-    glob.glob(os.path.join(project_root, "**", ".pytest_cache"), recursive=True)
-)
-cache_count = 0
-for cache_dir in set(cache_dirs):
-    if os.path.exists(cache_dir):
-        try:
-            shutil.rmtree(cache_dir, ignore_errors=True)
-            print(f"   [deleted cache] {os.path.relpath(cache_dir, project_root)}")
-            cache_count += 1
-        except Exception as e:
-            pass
-if cache_count == 0:
-    print("   ✓ No bytecode/test cache directories found.")
+# 5. Clean heavy .git metadata folders in Backend/repos to free up disk space
+print("\n5. Cleaning heavy .git metadata in cloned repos to reclaim disk space...")
+repos_dir = os.path.join(backend_dir, "repos")
+git_freed = 0
+if os.path.exists(repos_dir):
+    for item in os.listdir(repos_dir):
+        git_dir = os.path.join(repos_dir, item, ".git")
+        if os.path.isdir(git_dir):
+            try:
+                shutil.rmtree(git_dir, ignore_errors=True)
+                print(f"   [reclaimed space] Removed .git in {item}")
+                git_freed += 1
+            except Exception as e:
+                pass
+if git_freed == 0:
+    print("   ✓ No heavy .git folders found in repos.")
 
-print("\n✨ Cleanup Complete! All unnecessary log, cache, and scratch files have been removed.")
+print("\n✨ Cleanup Complete! All unnecessary log, cache, git metadata, and scratch files have been removed.")

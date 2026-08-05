@@ -80,6 +80,9 @@ def _apply_cache_python(file_path: str, hit: PatternHit) -> RefactorResult:
         lines = f.readlines()
 
     target_idx = hit.line_number - 1
+    if target_idx < 0 or target_idx >= len(lines):
+        return RefactorResult(False, "skipped-no-handler", backup_path)
+
     if "def " not in lines[target_idx]:
         return RefactorResult(False, "skipped-no-handler", backup_path)
 
@@ -106,6 +109,9 @@ def _apply_cache_javascript(file_path: str, hit: PatternHit) -> RefactorResult:
         lines = f.readlines()
 
     target_idx = hit.line_number - 1
+    if target_idx < 0 or target_idx >= len(lines):
+        return RefactorResult(False, "skipped-no-handler", backup_path)
+
     m = re.match(r"(\s*)function\s+(\w+)\s*\(", lines[target_idx])
     if not m:
         return RefactorResult(False, "skipped-no-handler", backup_path)
@@ -440,9 +446,20 @@ def _go_cache_parse(line):
     return {"indent": m.group("indent"), "ret": ret, "name": m.group("name"), "params": m.group("params").strip()}
 
 
+def _go_param_names(params: str) -> list[str]:
+    names = []
+    for seg in params.split(","):
+        seg = seg.strip()
+        if not seg:
+            continue
+        toks = seg.split()
+        if len(toks) > 0:
+            names.append(toks[0]) # In Go, the name comes first: `x int`
+    return names
+
 def _go_cache_build(p):
     indent, ret, name, params = p["indent"], p["ret"], p["name"], p["params"]
-    names = _param_names(params)
+    names = _go_param_names(params)
     args_literal = ", ".join(names)
     fmt_args = ", ".join(names) if names else '"noargs"'
     impl_line = f"{indent}func {name}Impl({params}) {ret} {{\n"
@@ -769,7 +786,9 @@ def _flag_only(file_path: str, language: str, hit: PatternHit) -> RefactorResult
     with open(file_path, "r", encoding="utf-8", errors="replace") as f:
         lines = f.readlines()
     idx = hit.line_number - 1
-    indent = _indent_of(lines[idx]) if idx < len(lines) else ""
+    if idx < 0 or idx >= len(lines):
+        return RefactorResult(False, "skipped-no-handler", backup_path)
+    indent = _indent_of(lines[idx])
     prefix = COMMENT_PREFIX.get(language, "//")
     marker = f"{indent}{prefix} REFACTOR-CANDIDATE: {hit.pattern} - needs manual/LLM-assisted edit (see llm_review_agent.py)\n"
     lines.insert(idx, marker)

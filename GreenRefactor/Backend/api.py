@@ -397,6 +397,8 @@ def analyze_code(req: ScanRequest):
             ])
             if not is_already_cached:
                 for idx_l, line_str in enumerate(code_lines):
+                    if "REFACTOR-CANDIDATE" in line_str or (idx_l > 0 and "REFACTOR-CANDIDATE" in code_lines[idx_l - 1]):
+                        continue
                     if any(kw in line_str for kw in ["def ", "function ", "int compute", "public static", "func "]):
                         hits.append(HitModel(
                             pattern="cache_reuse",
@@ -409,6 +411,8 @@ def analyze_code(req: ScanRequest):
             has_break = "break" in req.code
             if not has_break:
                 for idx_l, line_str in enumerate(code_lines):
+                    if "REFACTOR-CANDIDATE" in line_str or (idx_l > 0 and "REFACTOR-CANDIDATE" in code_lines[idx_l - 1]):
+                        continue
                     if "if " in line_str and (":" in line_str or "{" in line_str or "==" in line_str):
                         hits.append(HitModel(
                             pattern="early_termination",
@@ -528,6 +532,23 @@ def update_user_settings(req: UserSettingsRequest, current_email: str = Depends(
     if req.tdp_watts: user["tdp_watts"] = req.tdp_watts
     USER_DB[current_email] = user
     return {"success": True, "user": public_user(user)}
+
+@app.get("/api/export/pdf")
+def export_benchmark_pdf():
+    """Export detailed benchmark results as downloadable HTML/PDF report."""
+    from generate_pdf_report import generate_report
+    generate_report()
+    backend_dir = os.path.dirname(os.path.abspath(__file__))
+    report_path = os.path.join(backend_dir, "results", "GreenRefactor_Research_Report.html")
+    if os.path.exists(report_path):
+        with open(report_path, "r", encoding="utf-8") as f:
+            content = f.read()
+        return Response(
+            content=content,
+            media_type="text/html",
+            headers={"Content-Disposition": "attachment; filename=GreenRefactor_Research_Report.html"}
+        )
+    raise HTTPException(status_code=404, detail="Report generation failed")
 
 @app.get("/api/export/csv")
 def export_benchmark_csv():

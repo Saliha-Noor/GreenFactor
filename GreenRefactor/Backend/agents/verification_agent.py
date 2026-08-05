@@ -138,7 +138,12 @@ def verify(repo_path: str, language: str, adapter=None, file_path: str = None) -
     cmd = _find_working_test_cmd(repo_path, language, file_path)
     if cmd:
         try:
-            proc = subprocess.run(cmd, cwd=repo_path, capture_output=True, text=True, timeout=30)
+            real_cmd = list(cmd)
+            from shutil import which
+            resolved = which(real_cmd[0])
+            if resolved:
+                real_cmd[0] = resolved
+            proc = subprocess.run(real_cmd, cwd=repo_path, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=30)
             if proc.returncode == 0:
                 return VerificationResult(
                     passed=True,

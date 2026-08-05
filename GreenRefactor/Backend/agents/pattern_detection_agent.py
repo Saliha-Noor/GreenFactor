@@ -57,10 +57,10 @@ PER_ITEM_IO_HINTS = [
 # already-memoized markers (so we don't flag something already cached)
 CACHE_MARKERS = {
     "python": [r"@lru_cache", r"@cache", r"functools\.cache", r"functools\.lru_cache"],
-    "java": [r"Cache<", r"ConcurrentHashMap.*computeIfAbsent"],
-    "csharp": [r"MemoryCache", r"ConcurrentDictionary.*GetOrAdd"],
+    "java": [r"Cache<", r"ConcurrentHashMap", r"java\.util\.concurrent\.ConcurrentHashMap"],
+    "csharp": [r"MemoryCache", r"ConcurrentDictionary", r"System\.Collections\.Concurrent\.ConcurrentDictionary"],
     "javascript": [r"memoize\(", r"new Map\(\)"],
-    "go": [r"sync\.Map", r"sync\.Once"],
+    "go": [r"sync\.Map", r"sync\.Once", r"var\s+\w+Cache\s+=\s+map\["],
     "rust": [r"lazy_static", r"once_cell", r"HashMap::new\(\)\.entry"],
     "cpp": [r"std::unordered_map.*cache", r"static\s+std::map"],
     "c": [r"static\s+.*cache"],
@@ -100,7 +100,10 @@ def detect_cache_reuse(file_path: str, language: str) -> list[PatternHit]:
         if not m:
             continue
         fname = next((g for g in m.groups() if g and g not in ("public", "private", "protected", "static", "pub ")), None)
-        if not fname:
+        if not fname or fname.endswith("Impl") or fname.endswith("__impl"):
+            continue
+            
+        if "REFACTOR-CANDIDATE" in line or (i > 0 and "REFACTOR-CANDIDATE" in lines[i - 1]):
             continue
         # heuristic: the point of caching is "same input -> skip recompute", so we
         # only flag this as a cache_reuse candidate if the SAME call, with the SAME
@@ -140,6 +143,8 @@ def detect_early_termination(file_path: str, language: str) -> list[PatternHit]:
                 len(re.match(r"(\s*)", line).group(1)) <= len(loop_indent):
             in_loop_at = None
         if in_loop_at is not None and FOUND_CONDITION_RE.search(line):
+            if "REFACTOR-CANDIDATE" in line or (i > 0 and "REFACTOR-CANDIDATE" in lines[i - 1]):
+                continue
             if_indent = re.match(r"(\s*)", line).group(1)
             # scan only the if-block itself (lines more indented than the if),
             # not unrelated code after the block ends
@@ -182,6 +187,12 @@ def detect_batch_operations(file_path: str, language: str) -> list[PatternHit]:
                 len(re.match(r"(\s*)", line).group(1)) <= len(loop_indent):
             in_loop = False
         if in_loop and io_re.search(line):
+            # Skip if this line (or the line immediately above) is already flagged
+            # with a REFACTOR-CANDIDATE comment from a previous refactoring pass
+            if "REFACTOR-CANDIDATE" in line:
+                continue
+            if i > 0 and "REFACTOR-CANDIDATE" in lines[i - 1]:
+                continue
             hits.append(PatternHit(
                 pattern="batch_operations", file_path=file_path, line_number=i + 1,
                 snippet=line.strip(), confidence="medium",
@@ -205,6 +216,8 @@ def detect_avoid_redundant_computation(file_path: str, language: str) -> list[Pa
         if collecting:
             if line.strip() and len(re.match(r"(\s*)", line).group(1)) <= len(loop_indent):
                 collecting = False  # dedented back out of the loop body
+                continue
+            if "REFACTOR-CANDIDATE" in line or (i > 0 and "REFACTOR-CANDIDATE" in lines[i - 1]):
                 continue
             in_loop_body.append(line)
             calls = REPEATED_CALL_RE.findall(line)

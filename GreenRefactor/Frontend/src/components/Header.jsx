@@ -1,5 +1,5 @@
 import React from 'react';
-import { Leaf, BarChart2, Code2, LineChart, Database, User, Sun, Moon, HelpCircle } from 'lucide-react';
+import { Leaf, BarChart2, Code2, LineChart, Database, User, Sun, Moon } from 'lucide-react';
 
 export function Header({ activeTab, setActiveTab, user, theme, setTheme, onOpenHelp }) {
   const tabs = [
@@ -65,7 +65,7 @@ export function Header({ activeTab, setActiveTab, user, theme, setTheme, onOpenH
         </div>
 
         {/* Navigation Tabs */}
-        <nav style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+        <nav style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
           {tabs.map((t) => {
             const Icon = t.icon;
             const isActive = activeTab === t.id;
@@ -80,26 +80,6 @@ export function Header({ activeTab, setActiveTab, user, theme, setTheme, onOpenH
               </button>
             );
           })}
-
-          {/* Separator */}
-          <div style={{ width: '1px', height: '24px', background: 'var(--border-color)', margin: '0 4px' }} />
-
-          {/* Help / FAQ Tab Button */}
-          <button
-            onClick={onOpenHelp}
-            className="tab-button"
-            title="Help & FAQs"
-            style={{
-              background: 'var(--emerald-subtle)',
-              border: '1px solid var(--emerald-primary)',
-              color: 'var(--emerald-primary)',
-              fontWeight: 600,
-              animation: 'pulse-glow 2s ease-in-out infinite',
-            }}
-          >
-            <HelpCircle size={15} color="var(--emerald-primary)" />
-            <span>Help / FAQs</span>
-          </button>
         </nav>
 
       </div>

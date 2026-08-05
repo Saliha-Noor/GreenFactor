@@ -1,0 +1,7 @@
+{
+  "measurement_mode": "TDP",
+  "rapl_vendor": null,
+  "rapl_energy_file": null,
+  "platform": "Linux-6.18.5-x86_64-with-glibc2.39",
+  "processor": "x86_64"
+}

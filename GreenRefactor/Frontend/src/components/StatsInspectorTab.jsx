@@ -1,9 +1,14 @@
 import React, { useState } from 'react';
-import { Activity, BarChart2, CheckCircle, HelpCircle, FileText } from 'lucide-react';
+import { Activity, BarChart2, CheckCircle, HelpCircle, FileText, Download } from 'lucide-react';
+import { API_BASE_URL } from '../apiConfig';
 
 export function StatsInspectorTab({ summaryData }) {
   const rows = summaryData?.rows || [];
   const [selectedIndex, setSelectedIndex] = useState(rows.length > 0 ? 0 : -1);
+
+  const handleExportPDF = () => {
+    window.open(`${API_BASE_URL}/api/export/pdf`, '_blank');
+  };
 
   if (!summaryData || rows.length === 0) {
     return (
@@ -45,14 +50,23 @@ export function StatsInspectorTab({ summaryData }) {
         </div>
       )}
 
-      <div className="glass-card" style={{ padding: '20px 24px' }}>
-        <h2 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.2rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)' }}>
-          <Activity size={22} color="var(--emerald-primary)" />
-          Statistical Rigor Inspector
-        </h2>
-        <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '4px' }}>
-          Detailed paired hypothesis testing & effect sizes for real benchmark measurements.
-        </p>
+      <div className="glass-card" style={{ padding: '20px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div>
+          <h2 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.2rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)' }}>
+            <Activity size={22} color="var(--emerald-primary)" />
+            Statistical Rigor Inspector
+          </h2>
+          <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '4px' }}>
+            Detailed paired hypothesis testing & effect sizes for real benchmark measurements.
+          </p>
+        </div>
+        <button
+          onClick={handleExportPDF}
+          className="btn-primary"
+          style={{ background: 'var(--emerald-primary)', padding: '10px 16px', fontSize: '0.85rem', whiteSpace: 'nowrap' }}
+        >
+          <FileText size={16} /> Export PDF Report
+        </button>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '20px' }}>

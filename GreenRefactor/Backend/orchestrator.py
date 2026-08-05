@@ -31,12 +31,23 @@ def run_case(
     runs_per_case: int = 30,
     workload_entrypoint: str = None,
     interleave: bool = False,
+    max_hits: int = None,
+    url: str = None,
 ) -> dict:
     file_path = os.path.join(repo_path, entrypoint)
     out = {
         "language": language, "repo": repo_name, "file": entrypoint,
         "status": None, "detail": None,
     }
+
+    if not os.path.isfile(file_path):
+        if url:
+            from agents.ingestion_agent import clone_repo
+            clone_repo(url, repo_path)
+        if not os.path.isfile(file_path):
+            out["status"] = "no_pattern_found"
+            out["detail"] = f"Entrypoint file {entrypoint} not found in {repo_path}"
+            return out
 
     adapter = get_adapter(language, repo_path, entrypoint, workload_entrypoint=workload_entrypoint)
     try:
@@ -90,6 +101,9 @@ def run_case(
         out["status"] = "no_pattern_found"
         out["baseline_mean_j"] = sum(baseline_energies) / len(baseline_energies) if baseline_energies else None
         return out
+
+    if max_hits and len(hits) > max_hits:
+        hits = hits[:max_hits]
 
     case_results = []
     total_hits = len(hits)

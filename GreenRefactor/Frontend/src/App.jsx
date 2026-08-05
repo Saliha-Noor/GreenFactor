@@ -112,6 +112,38 @@ export default function App() {
         activeTab={activeTab}
       />
 
+      {/* Floating Help / FAQ Button — fixed bottom-right of viewport */}
+      <button
+        onClick={() => setIsHelpOpen(true)}
+        title="Help & FAQs"
+        style={{
+          position: 'fixed',
+          bottom: '28px',
+          right: '28px',
+          zIndex: 40,
+          width: '52px',
+          height: '52px',
+          borderRadius: '50%',
+          background: 'linear-gradient(135deg, var(--emerald-primary), #059669)',
+          border: '2px solid rgba(255,255,255,0.15)',
+          color: '#fff',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          cursor: 'pointer',
+          boxShadow: '0 4px 20px rgba(16,185,129,0.4), 0 2px 8px rgba(0,0,0,0.3)',
+          transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+        }}
+        onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.1)'; e.currentTarget.style.boxShadow = '0 6px 28px rgba(16,185,129,0.55), 0 3px 12px rgba(0,0,0,0.4)'; }}
+        onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 4px 20px rgba(16,185,129,0.4), 0 2px 8px rgba(0,0,0,0.3)'; }}
+      >
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+      </button>
+
       {!isBackendConnected && (
         <div style={{
           background: 'var(--rose-subtle)',
