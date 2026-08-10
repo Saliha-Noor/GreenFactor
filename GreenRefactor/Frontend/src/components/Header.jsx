@@ -1,5 +1,5 @@
 import React from 'react';
-import { Leaf, BarChart2, Code2, LineChart, Database, User, Sun, Moon } from 'lucide-react';
+import { Leaf, BarChart2, Code2, LineChart, Database, User, Sun, Moon, HelpCircle } from 'lucide-react';
 
 export function Header({ activeTab, setActiveTab, user, theme, setTheme, onOpenHelp }) {
   const tabs = [
@@ -42,6 +42,8 @@ export function Header({ activeTab, setActiveTab, user, theme, setTheme, onOpenH
 
           {/* Right Header Controls */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+
+
 
             <button
               onClick={toggleTheme}

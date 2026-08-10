@@ -172,7 +172,7 @@ Open your browser at **`http://localhost:3000`** (or the port specified in termi
 
 ## 🧪 Supported Green Refactoring Patterns (10)
 
-| # | Pattern Name | Transformation Type | Targeted Inefficiency | Estimated Savings |
+| # | Pattern Name | Transformation Type | Targeted Inefficiency | Estimated Savings (prior estimate, not yet empirically measured per-pattern) |
 |---|--------------|--------------------|-----------------------|-------------------|
 | 1 | **Early Termination** | Mechanical (line/regex heuristic) | Exhaustive iteration after result match | ~14% energy reduction |
 | 2 | **Cache Reuse / Memoization** | Mechanical (line/regex heuristic) | Repeated expensive computation | ~22% energy reduction |
@@ -184,6 +184,8 @@ Open your browser at **`http://localhost:3000`** (or the port specified in termi
 | 8 | **Swap Library Implementation** | Semantic Review | Unoptimized third-party library calls | ~15% energy reduction |
 | 9 | **Lazy Evaluation** | Mechanical (line/regex heuristic) | Pre-allocating unneeded heavy objects | ~18% energy reduction |
 | 10 | **Memory Allocation Optimization** | Mechanical (line/regex heuristic) | Excessive heap allocation in tight loops | ~25% energy reduction |
+
+> **Note:** These are pre-registered estimates used to prioritize which patterns to implement. Measured, aggregate results per language are in `Backend/results/comparison_summary.json` and summarized in the Research Questions section below — they show substantially smaller and more mixed effects than these estimates once evaluated against real repos. See the Final Project Report for the full breakdown.
 
 ---
 

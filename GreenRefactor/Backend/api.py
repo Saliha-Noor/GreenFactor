@@ -371,7 +371,7 @@ def analyze_code(req: ScanRequest):
     ext = EXTENSIONS.get(lang, ".txt")
     print(f"[analyze] Starting scan for language={lang}, code_length={len(req.code)} chars")
     
-    with tempfile.NamedTemporaryFile("w", suffix=ext, delete=False, encoding="utf-8") as tmp:
+    with tempfile.NamedTemporaryFile("w", suffix=ext, delete=False, encoding="utf-8", newline="") as tmp:
         tmp.write(req.code)
         tmp_path = tmp.name
 
@@ -391,13 +391,23 @@ def analyze_code(req: ScanRequest):
         # Heuristic fallback if standard AST scan finds no hits
         if not hits:
             code_lines = req.code.splitlines()
+
+            # Helper: check if a line is near a REFACTOR-CANDIDATE comment
+            def _nearby_flagged(lines, idx):
+                for j in range(idx, max(-1, idx - 4), -1):
+                    if "REFACTOR-CANDIDATE" in lines[j]:
+                        return True
+                    if j != idx and lines[j].strip():
+                        break
+                return False
+
             is_already_cached = any(kw in req.code for kw in [
                 "lru_cache", "functools", "__cache", "Map()", "ConcurrentHashMap",
                 "unordered_map", "_cache", "memoize"
             ])
             if not is_already_cached:
                 for idx_l, line_str in enumerate(code_lines):
-                    if "REFACTOR-CANDIDATE" in line_str or (idx_l > 0 and "REFACTOR-CANDIDATE" in code_lines[idx_l - 1]):
+                    if _nearby_flagged(code_lines, idx_l):
                         continue
                     if any(kw in line_str for kw in ["def ", "function ", "int compute", "public static", "func "]):
                         hits.append(HitModel(
@@ -411,7 +421,7 @@ def analyze_code(req: ScanRequest):
             has_break = "break" in req.code
             if not has_break:
                 for idx_l, line_str in enumerate(code_lines):
-                    if "REFACTOR-CANDIDATE" in line_str or (idx_l > 0 and "REFACTOR-CANDIDATE" in code_lines[idx_l - 1]):
+                    if _nearby_flagged(code_lines, idx_l):
                         continue
                     if "if " in line_str and (":" in line_str or "{" in line_str or "==" in line_str):
                         hits.append(HitModel(
@@ -437,7 +447,7 @@ def refactor_code(req: RefactorRequest):
     ext = EXTENSIONS.get(lang, ".txt")
     print(f"[refactor] Starting refactor: pattern={req.pattern}, language={lang}, line={req.line_number}")
 
-    with tempfile.NamedTemporaryFile("w", suffix=ext, delete=False, encoding="utf-8") as tmp:
+    with tempfile.NamedTemporaryFile("w", suffix=ext, delete=False, encoding="utf-8", newline="") as tmp:
         tmp.write(req.code)
         tmp_path = tmp.name
 

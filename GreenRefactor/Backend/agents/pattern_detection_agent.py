@@ -83,6 +83,15 @@ def _lines(file_path: str) -> list[str]:
         return f.readlines()
 
 
+def _is_flagged(lines: list[str], idx: int) -> bool:
+    for j in range(idx, max(-1, idx - 4), -1):
+        if "REFACTOR-CANDIDATE" in lines[j]:
+            return True
+        if j != idx and lines[j].strip():
+            break  # hit actual code, stop looking back
+    return False
+
+
 def detect_cache_reuse(file_path: str, language: str) -> list[PatternHit]:
     """Flag pure-looking functions (no I/O keywords, called with the same
     args repeatedly nearby) that AREN'T already memoized."""
@@ -103,7 +112,7 @@ def detect_cache_reuse(file_path: str, language: str) -> list[PatternHit]:
         if not fname or fname.endswith("Impl") or fname.endswith("__impl"):
             continue
             
-        if "REFACTOR-CANDIDATE" in line or (i > 0 and "REFACTOR-CANDIDATE" in lines[i - 1]):
+        if _is_flagged(lines, i):
             continue
         # heuristic: the point of caching is "same input -> skip recompute", so we
         # only flag this as a cache_reuse candidate if the SAME call, with the SAME
@@ -143,7 +152,7 @@ def detect_early_termination(file_path: str, language: str) -> list[PatternHit]:
                 len(re.match(r"(\s*)", line).group(1)) <= len(loop_indent):
             in_loop_at = None
         if in_loop_at is not None and FOUND_CONDITION_RE.search(line):
-            if "REFACTOR-CANDIDATE" in line or (i > 0 and "REFACTOR-CANDIDATE" in lines[i - 1]):
+            if _is_flagged(lines, i):
                 continue
             if_indent = re.match(r"(\s*)", line).group(1)
             # scan only the if-block itself (lines more indented than the if),
@@ -187,11 +196,9 @@ def detect_batch_operations(file_path: str, language: str) -> list[PatternHit]:
                 len(re.match(r"(\s*)", line).group(1)) <= len(loop_indent):
             in_loop = False
         if in_loop and io_re.search(line):
-            # Skip if this line (or the line immediately above) is already flagged
+            # Skip if this line (or nearby above) is already flagged
             # with a REFACTOR-CANDIDATE comment from a previous refactoring pass
-            if "REFACTOR-CANDIDATE" in line:
-                continue
-            if i > 0 and "REFACTOR-CANDIDATE" in lines[i - 1]:
+            if _is_flagged(lines, i):
                 continue
             hits.append(PatternHit(
                 pattern="batch_operations", file_path=file_path, line_number=i + 1,
@@ -217,7 +224,7 @@ def detect_avoid_redundant_computation(file_path: str, language: str) -> list[Pa
             if line.strip() and len(re.match(r"(\s*)", line).group(1)) <= len(loop_indent):
                 collecting = False  # dedented back out of the loop body
                 continue
-            if "REFACTOR-CANDIDATE" in line or (i > 0 and "REFACTOR-CANDIDATE" in lines[i - 1]):
+            if _is_flagged(lines, i):
                 continue
             in_loop_body.append(line)
             calls = REPEATED_CALL_RE.findall(line)

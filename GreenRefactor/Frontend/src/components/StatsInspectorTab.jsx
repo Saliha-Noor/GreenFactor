@@ -2,6 +2,14 @@ import React, { useState } from 'react';
 import { Activity, BarChart2, CheckCircle, HelpCircle, FileText, Download } from 'lucide-react';
 import { API_BASE_URL } from '../apiConfig';
 
+// Format Joules: use scientific notation for sub-millijoule values so they never display as "0.0000"
+const formatJoules = (val) => {
+  if (val == null) return 'N/A';
+  if (Math.abs(val) < 0.001) return `${val.toExponential(4)} J`;
+  if (Math.abs(val) < 1) return `${val.toFixed(6)} J`;
+  return `${val.toFixed(4)} J`;
+};
+
 export function StatsInspectorTab({ summaryData }) {
   const rows = summaryData?.rows || [];
   const [selectedIndex, setSelectedIndex] = useState(rows.length > 0 ? 0 : -1);
@@ -177,13 +185,13 @@ export function StatsInspectorTab({ summaryData }) {
                 <div>
                   <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Baseline Mean</span>
                   <p style={{ fontSize: '1.2rem', fontWeight: 700, fontFamily: 'var(--font-code)', margin: 0 }}>
-                    {selectedRow.mean_baseline_j != null ? `${selectedRow.mean_baseline_j.toFixed(4)} J` : 'N/A'}
+                    {formatJoules(selectedRow.mean_baseline_j)}
                   </p>
                 </div>
                 <div>
                   <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Refactored Mean</span>
                   <p style={{ fontSize: '1.2rem', fontWeight: 700, fontFamily: 'var(--font-code)', color: 'var(--emerald-primary)', margin: 0 }}>
-                    {selectedRow.mean_refactored_j != null ? `${selectedRow.mean_refactored_j.toFixed(4)} J` : 'N/A'}
+                    {formatJoules(selectedRow.mean_refactored_j)}
                   </p>
                 </div>
               </div>

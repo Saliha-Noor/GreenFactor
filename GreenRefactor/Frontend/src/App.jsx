@@ -121,27 +121,32 @@ export default function App() {
           bottom: '28px',
           right: '28px',
           zIndex: 40,
-          width: '52px',
-          height: '52px',
-          borderRadius: '50%',
+          height: '44px',
+          padding: '0 18px',
+          borderRadius: '22px',
           background: 'linear-gradient(135deg, var(--emerald-primary), #059669)',
           border: '2px solid rgba(255,255,255,0.15)',
           color: '#fff',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
+          gap: '6px',
           cursor: 'pointer',
           boxShadow: '0 4px 20px rgba(16,185,129,0.4), 0 2px 8px rgba(0,0,0,0.3)',
           transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+          fontSize: '0.8rem',
+          fontWeight: 600,
+          letterSpacing: '0.02em',
         }}
-        onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.1)'; e.currentTarget.style.boxShadow = '0 6px 28px rgba(16,185,129,0.55), 0 3px 12px rgba(0,0,0,0.4)'; }}
+        onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.05)'; e.currentTarget.style.boxShadow = '0 6px 28px rgba(16,185,129,0.55), 0 3px 12px rgba(0,0,0,0.4)'; }}
         onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 4px 20px rgba(16,185,129,0.4), 0 2px 8px rgba(0,0,0,0.3)'; }}
       >
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="12" cy="12" r="10"/>
           <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
           <line x1="12" y1="17" x2="12.01" y2="17"/>
         </svg>
+        Help & FAQ
       </button>
 
       {!isBackendConnected && (
