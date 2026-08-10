@@ -24,3 +24,6 @@ Backend/results/**/*.json
 
 # Logs
 *.log
+
+# Databases
+*.db

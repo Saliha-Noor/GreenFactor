@@ -14,6 +14,7 @@ import glob
 import json
 import os
 import statistics
+import yaml
 
 RESULTS_DIR = os.path.join(os.path.dirname(__file__), "results")
 
@@ -30,6 +31,23 @@ RUNTIME_CATEGORY_LABELS = {
 }
 
 
+def _load_excluded_repo_names(config_path: str) -> set:
+    """Set of (language, repo_name) pairs formally excluded per config/repos.yaml's
+    excluded: true flag. compare_results.py must never fold these into aggregate
+    stats, even if a stray results/<lang>/<repo>.json exists on disk (e.g. left
+    over from before exclusion was enforced, or written by a manual test run)."""
+    excluded = set()
+    if os.path.exists(config_path):
+        with open(config_path, "r", encoding="utf-8") as f:
+            cfg = yaml.safe_load(f) or {}
+        for lang, data in cfg.items():
+            if isinstance(data, dict):
+                for r in data.get("repos", []):
+                    if r.get("excluded"):
+                        excluded.add((lang, r["name"]))
+    return excluded
+
+
 def main():
     if not os.path.isdir(RESULTS_DIR):
         print("No results yet — run run_language_batch.py for at least one language first.")
@@ -40,6 +58,8 @@ def main():
         print("No results yet — run run_language_batch.py for at least one language first.")
         return
 
+    excluded_repos = _load_excluded_repo_names(os.path.join(os.path.dirname(__file__), "config", "repos.yaml"))
+
     rows = []
     repos_seen = set()
     for lang in languages:
@@ -49,6 +69,9 @@ def main():
             with open(path) as f:
                 repo_result = json.load(f)
             repo_name = repo_result.get("repo")
+            if (lang, repo_name) in excluded_repos:
+                print(f"[skip] {lang}/{repo_name} — formally excluded, ignoring stray results file at {path}")
+                continue
             repos_seen.add(f"{lang}/{repo_name}")
             for entry in repo_result.get("patterns", []):
                 if entry.get("status") != "measured" or "stats" not in entry:
@@ -171,9 +194,22 @@ def main():
         "avg_effect_size_cohens_d": round(statistics.mean(all_d), 2) if all_d else 0.0,
     }
 
+    total_configured = 0
+    config_path = os.path.join(os.path.dirname(__file__), "config", "repos.yaml")
+    if os.path.exists(config_path):
+        with open(config_path, "r", encoding="utf-8") as f:
+            cfg = yaml.safe_load(f) or {}
+            for lang, data in cfg.items():
+                if isinstance(data, dict):
+                    total_configured += len(data.get("repos", []))
+    if total_configured == 0:
+        total_configured = 120
+
     experiment_info = {
-        "total_repos_configured": 120,
-        "repos_evaluated": 120,
+        "total_repos_configured": total_configured,
+        "repos_formally_excluded": len(excluded_repos),
+        "repos_genuinely_measurable": total_configured - len(excluded_repos),
+        "repos_evaluated": len(repos_seen),
         "languages_supported": 8,
         "target_languages": ALL_LANGUAGES,
         "measurement_mode": "TDP / RAPL (auto-detected)",
@@ -181,6 +217,7 @@ def main():
 
     # Write the full structured output
     output = {
+        "data_source": "measured_results",
         "experiment_info": experiment_info,
         "rq1_language_summary": rq1_language_summary,
         "rq2_runtime_summary": rq2_runtime_summary,

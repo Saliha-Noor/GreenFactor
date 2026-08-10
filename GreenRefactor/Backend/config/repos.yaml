@@ -25,38 +25,49 @@ python:
     - name: requests
       local_path: repos/python/requests
       entrypoint: src/requests/adapters.py
+      workload_entrypoint: workloads/python/requests_driver.py
       url: https://github.com/psf/requests
     - name: flask
+      excluded: true
+      exclusion_reason: "Requires a live HTTP server + client harness to exercise meaningfully; no deterministic single-process workload available."
       local_path: repos/python/flask
       entrypoint: src/flask/app.py
       url: https://github.com/pallets/flask
     - name: click
       local_path: repos/python/click
       entrypoint: src/click/core.py
+      workload_entrypoint: workloads/python/click_driver.py
       url: https://github.com/pallets/click
     - name: rich
       local_path: repos/python/rich
       entrypoint: rich/console.py
+      workload_entrypoint: workloads/python/rich_driver.py
       url: https://github.com/Textualize/rich
     - name: httpx
       local_path: repos/python/httpx
       entrypoint: httpx/_client.py
+      workload_entrypoint: workloads/python/httpx_driver.py
       url: https://github.com/encode/httpx
     - name: faker
       local_path: repos/python/faker
       entrypoint: faker/proxy.py
+      workload_entrypoint: workloads/python/faker_driver.py
       url: https://github.com/joke2k/faker
     - name: gunicorn
+      excluded: true
+      exclusion_reason: "Requires a live HTTP server + client harness to exercise meaningfully; no deterministic single-process workload available."
       local_path: repos/python/gunicorn
       entrypoint: gunicorn/workers/base.py
       url: https://github.com/benoitc/gunicorn
     - name: typer
       local_path: repos/python/typer
       entrypoint: typer/main.py
+      workload_entrypoint: workloads/python/typer_driver.py
       url: https://github.com/tiangolo/typer
     - name: pydantic
       local_path: repos/python/pydantic
       entrypoint: pydantic/main.py
+      workload_entrypoint: workloads/python/pydantic_driver.py
       url: https://github.com/pydantic/pydantic
     - name: tqdm
       local_path: repos/python/tqdm
@@ -71,12 +82,17 @@ python:
     - name: sqlalchemy
       local_path: repos/python/sqlalchemy
       entrypoint: lib/sqlalchemy/engine/base.py
+      workload_entrypoint: workloads/python/sqlalchemy_driver.py
       url: https://github.com/sqlalchemy/sqlalchemy
     - name: scrapy
+      excluded: true
+      exclusion_reason: "Inherently network-bound and non-deterministic."
       local_path: repos/python/scrapy
       entrypoint: scrapy/core/engine.py
       url: https://github.com/scrapy/scrapy
     - name: tornado
+      excluded: true
+      exclusion_reason: "Requires a live HTTP server + client harness to exercise meaningfully; no deterministic single-process workload available."
       local_path: repos/python/tornado
       entrypoint: tornado/ioloop.py
       url: https://github.com/tornadoweb/tornado
@@ -107,10 +123,14 @@ javascript:
       entrypoint: lib/axios.js
       url: https://github.com/axios/axios
     - name: express
+      excluded: true
+      exclusion_reason: "Requires a live HTTP server + client harness to exercise meaningfully; no deterministic single-process workload available."
       local_path: repos/javascript/express
       entrypoint: lib/router/index.js
       url: https://github.com/expressjs/express
     - name: chart_js
+      excluded: true
+      exclusion_reason: "Requires a full browser/DOM environment; cannot run in a headless Node process without massive mocking, which invalidates energy readings."
       local_path: repos/javascript/chart_js
       entrypoint: src/core/core.controller.js
       url: https://github.com/chartjs/Chart.js
@@ -119,18 +139,26 @@ javascript:
       entrypoint: src/moment.js
       url: https://github.com/moment/moment
     - name: socket_io
+      excluded: true
+      exclusion_reason: "Requires a live HTTP server + client harness to exercise meaningfully; no deterministic single-process workload available."
       local_path: repos/javascript/socket_io
       entrypoint: lib/index.js
       url: https://github.com/socketio/socket.io
     - name: d3
+      excluded: true
+      exclusion_reason: "Requires a full browser/DOM environment; cannot run in a headless Node process without massive mocking, which invalidates energy readings."
       local_path: repos/javascript/d3
       entrypoint: src/index.js
       url: https://github.com/d3/d3
     - name: webpack
+      excluded: true
+      exclusion_reason: "Requires a target project to compile; highly variable based on target source."
       local_path: repos/javascript/webpack
       entrypoint: lib/Compiler.js
       url: https://github.com/webpack/webpack
     - name: eslint
+      excluded: true
+      exclusion_reason: "Meta-tool; benchmarking linting performance varies wildly based on the target source code."
       local_path: repos/javascript/eslint
       entrypoint: lib/linter/linter.js
       url: https://github.com/eslint/eslint
@@ -139,18 +167,26 @@ javascript:
       entrypoint: lib/commander.js
       url: https://github.com/tj/commander.js
     - name: jquery
+      excluded: true
+      exclusion_reason: "Requires a full browser/DOM environment; cannot run in a headless Node process without massive mocking, which invalidates energy readings."
       local_path: repos/javascript/jquery
       entrypoint: src/jquery.js
       url: https://github.com/jquery/jquery
     - name: vue
+      excluded: true
+      exclusion_reason: "Requires a full browser/DOM environment; cannot run in a headless Node process without massive mocking, which invalidates energy readings."
       local_path: repos/javascript/vue
       entrypoint: src/core/index.js
       url: https://github.com/vuejs/vue
     - name: koa
+      excluded: true
+      exclusion_reason: "Requires a live HTTP server + client harness to exercise meaningfully; no deterministic single-process workload available."
       local_path: repos/javascript/koa
       entrypoint: lib/application.js
       url: https://github.com/koajs/koa
     - name: react
+      excluded: true
+      exclusion_reason: "Requires a full browser/DOM environment; cannot run in a headless Node process without massive mocking, which invalidates energy readings."
       local_path: repos/javascript/react
       entrypoint: packages/react/src/React.js
       url: https://github.com/facebook/react
@@ -184,10 +220,14 @@ java:
       entrypoint: src/main/java/org/jsoup/parser/HtmlTreeBuilder.java
       url: https://github.com/jhy/jsoup
     - name: junit4
+      excluded: true
+      exclusion_reason: "Meta-tool (test framework); requires a target project to exercise meaningfully."
       local_path: repos/java/junit4
       entrypoint: src/main/java/org/junit/runners/BlockJUnit4ClassRunner.java
       url: https://github.com/junit-team/junit4
     - name: java_design_patterns
+      excluded: true
+      exclusion_reason: "Repo is a design-pattern showcase (Singleton example); no natural sustained workload exists, and looping the trivial call artificially would measure loop/JIT overhead rather than genuine program behavior."
       local_path: repos/java/java_design_patterns
       entrypoint: singleton/src/main/java/com/iluwatar/singleton/App.java
       url: https://github.com/iluwatar/java-design-patterns
@@ -224,6 +264,8 @@ java:
       entrypoint: src/main/java/com/fasterxml/jackson/databind/ObjectMapper.java
       url: https://github.com/FasterXML/jackson-databind
     - name: vertx
+      excluded: true
+      exclusion_reason: "Requires a live HTTP server + client harness to exercise meaningfully; no deterministic single-process workload available."
       local_path: repos/java/vertx
       entrypoint: vertx-core/src/main/java/io/vertx/core/impl/VertxImpl.java
       url: https://github.com/eclipse-vertx/vert.x
@@ -262,18 +304,34 @@ c:
       entrypoint: deflate.c
       url: https://github.com/madler/zlib
     - name: mongoose
+      excluded: true
+      exclusion_reason: "Requires a live HTTP server + client harness to exercise meaningfully; no deterministic single-process workload available."
       local_path: repos/c/mongoose
       entrypoint: mongoose.c
       url: https://github.com/cesanta/mongoose
     - name: sqlite
+      excluded: true
+      exclusion_reason: "No isolatable refactor target without a custom multi-file build pipeline; would require Makefile/CMake integration out of scope for this project."
+      # NOTE (audit): entrypoint below is still backwards relative to the Option A pattern
+      # used for cJSON — it points at the driver script instead of real, scannable SQLite
+      # source, and there's no separate workload_entrypoint. Deliberately left as-is because
+      # this repo is excluded; if it's ever un-excluded, entrypoint must be repointed at the
+      # real sqlite3.c amalgamation and this driver moved to workload_entrypoint first.
       local_path: repos/c/sqlite
-      entrypoint: src/btree.c
+      entrypoint: workloads/c/sqlite_cli.c
+      workload_args:
+        - ":memory:"
+        - ".read workloads/c/sqlite_bench.sql"
       url: https://github.com/sqlite/sqlite
     - name: redis
+      excluded: true
+      exclusion_reason: "No isolatable refactor target without a custom multi-file build pipeline; would require Makefile/CMake integration out of scope for this project."
       local_path: repos/c/redis
       entrypoint: src/server.c
       url: https://github.com/redis/redis
     - name: jq
+      excluded: true
+      exclusion_reason: "No isolatable refactor target without a custom multi-file build pipeline; would require Makefile/CMake integration out of scope for this project."
       local_path: repos/c/jq
       entrypoint: src/execute.c
       url: https://github.com/jqlang/jq
@@ -286,6 +344,8 @@ c:
       entrypoint: lib/compress/zstd_compress.c
       url: https://github.com/facebook/zstd
     - name: curl
+      excluded: true
+      exclusion_reason: "No isolatable refactor target without a custom multi-file build pipeline; would require Makefile/CMake integration out of scope for this project."
       local_path: repos/c/curl
       entrypoint: lib/transfer.c
       url: https://github.com/curl/curl
@@ -332,6 +392,8 @@ cpp:
       workload_entrypoint: workloads/cpp/fmt_driver.cpp
       url: https://github.com/fmtlib/fmt
     - name: catch2
+      excluded: true
+      exclusion_reason: "Meta-tool (test framework); requires a target project to exercise meaningfully."
       local_path: repos/cpp/catch2
       entrypoint: src/catch2/catch_session.cpp
       url: https://github.com/catchorg/Catch2
@@ -356,6 +418,8 @@ cpp:
       entrypoint: include/rapidjson/document.h
       url: https://github.com/Tencent/rapidjson
     - name: googletest
+      excluded: true
+      exclusion_reason: "Meta-tool (test framework); requires a target project to exercise meaningfully."
       local_path: repos/cpp/googletest
       entrypoint: googletest/src/gtest.cc
       url: https://github.com/google/googletest
@@ -393,10 +457,14 @@ go:
       workload_entrypoint: workloads/go/TheAlgorithms_Go_driver.go
       url: https://github.com/TheAlgorithms/Go
     - name: gin
+      excluded: true
+      exclusion_reason: "Requires a live HTTP server + client harness to exercise meaningfully; no deterministic single-process workload available."
       local_path: repos/go/gin
       entrypoint: gin.go
       url: https://github.com/gin-gonic/gin
     - name: gorilla_mux
+      excluded: true
+      exclusion_reason: "Requires a live HTTP server + client harness to exercise meaningfully; no deterministic single-process workload available."
       local_path: repos/go/gorilla_mux
       entrypoint: mux.go
       url: https://github.com/gorilla/mux
@@ -413,10 +481,14 @@ go:
       entrypoint: logrus.go
       url: https://github.com/sirupsen/logrus
     - name: fiber
+      excluded: true
+      exclusion_reason: "Requires a live HTTP server + client harness to exercise meaningfully; no deterministic single-process workload available."
       local_path: repos/go/fiber
       entrypoint: app.go
       url: https://github.com/gofiber/fiber
     - name: fasthttp
+      excluded: true
+      exclusion_reason: "Requires a live HTTP server + client harness to exercise meaningfully; no deterministic single-process workload available."
       local_path: repos/go/fasthttp
       entrypoint: server.go
       url: https://github.com/valyala/fasthttp
@@ -437,6 +509,8 @@ go:
       entrypoint: logger.go
       url: https://github.com/uber-go/zap
     - name: echo
+      excluded: true
+      exclusion_reason: "Requires a live HTTP server + client harness to exercise meaningfully; no deterministic single-process workload available."
       local_path: repos/go/echo
       entrypoint: echo.go
       url: https://github.com/labstack/echo
@@ -474,6 +548,8 @@ rust:
       entrypoint: serde/src/lib.rs
       url: https://github.com/serde-rs/serde
     - name: tokio
+      excluded: true
+      exclusion_reason: "Requires a live HTTP server + client harness to exercise meaningfully; no deterministic single-process workload available."
       local_path: repos/rust/tokio
       entrypoint: tokio/src/runtime/runtime.rs
       url: https://github.com/tokio-rs/tokio
@@ -490,10 +566,14 @@ rust:
       entrypoint: rayon-core/src/lib.rs
       url: https://github.com/rayon-rs/rayon
     - name: hyper
+      excluded: true
+      exclusion_reason: "Requires a live HTTP server + client harness to exercise meaningfully; no deterministic single-process workload available."
       local_path: repos/rust/hyper
       entrypoint: src/client/conn/http1.rs
       url: https://github.com/hyperium/hyper
     - name: actix_web
+      excluded: true
+      exclusion_reason: "Requires a live HTTP server + client harness to exercise meaningfully; no deterministic single-process workload available."
       local_path: repos/rust/actix_web
       entrypoint: actix-web/src/app.rs
       url: https://github.com/actix/actix-web
@@ -518,6 +598,8 @@ rust:
       entrypoint: alacritty/src/main.rs
       url: https://github.com/alacritty/alacritty
     - name: tikv
+      excluded: true
+      exclusion_reason: "Requires a live HTTP server + client harness to exercise meaningfully; no deterministic single-process workload available."
       local_path: repos/rust/tikv
       entrypoint: src/server/server.rs
       url: https://github.com/tikv/tikv
@@ -555,10 +637,14 @@ csharp:
       entrypoint: src/RestSharp/RestClient.cs
       url: https://github.com/restsharp/RestSharp
     - name: moq
+      excluded: true
+      exclusion_reason: "Meta-tool (mocking framework); requires a target project to exercise meaningfully."
       local_path: repos/csharp/moq
       entrypoint: src/Moq/Mock.cs
       url: https://github.com/moq/moq
     - name: fluentvalidation
+      excluded: true
+      exclusion_reason: "Meta-tool (validation framework); requires a target project to exercise meaningfully."
       local_path: repos/csharp/fluentvalidation
       entrypoint: src/FluentValidation/AbstractValidator.cs
       url: https://github.com/FluentValidation/FluentValidation
@@ -567,6 +653,8 @@ csharp:
       entrypoint: src/NLog/Logger.cs
       url: https://github.com/NLog/NLog
     - name: xunit
+      excluded: true
+      exclusion_reason: "Meta-tool (test framework); requires a target project to exercise meaningfully."
       local_path: repos/csharp/xunit
       entrypoint: src/xunit.v3.core/Framework/TheoryDiscoverer.cs
       url: https://github.com/xunit/xunit
@@ -579,6 +667,8 @@ csharp:
       entrypoint: src/Humanizer/StringHumanizeExtensions.cs
       url: https://github.com/Humanizr/Humanizer
     - name: masstransit
+      excluded: true
+      exclusion_reason: "Distributed messaging framework requiring live brokers."
       local_path: repos/csharp/masstransit
       entrypoint: src/MassTransit/MassTransit/Bus.cs
       url: https://github.com/MassTransit/MassTransit
@@ -587,6 +677,8 @@ csharp:
       entrypoint: src/Stateless/StateMachine.cs
       url: https://github.com/dotnet-state-machine/stateless
     - name: akka_net
+      excluded: true
+      exclusion_reason: "Distributed messaging framework requiring live brokers."
       local_path: repos/csharp/akka_net
       entrypoint: src/core/Akka/Actor/ActorBase.cs
       url: https://github.com/akkadotnet/akka.net

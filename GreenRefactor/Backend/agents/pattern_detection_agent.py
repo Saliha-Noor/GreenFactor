@@ -96,6 +96,9 @@ def detect_cache_reuse(file_path: str, language: str) -> list[PatternHit]:
     """Flag pure-looking functions (no I/O keywords, called with the same
     args repeatedly nearby) that AREN'T already memoized."""
     lines = _lines(file_path)
+    # Length guard: cache_reuse is O(N*M) where M is func count. Skip massively dense files.
+    if len(lines) > 3000:
+        return [PatternHit(pattern="system_flag:oversized_file", file_path=file_path, line_number=len(lines), snippet="cache_reuse", confidence="high")]
     text = "".join(lines)
     already_cached = any(re.search(m, text) for m in CACHE_MARKERS.get(language, []))
     if already_cached:

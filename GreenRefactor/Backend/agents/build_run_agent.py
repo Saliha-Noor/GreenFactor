@@ -54,7 +54,14 @@ class BuildRunAdapter:
         self.repo_path = repo_path
         self.entrypoint = entrypoint  # relative path to main file / build target
         self.workload_entrypoint = workload_entrypoint  # driver script to actually run (if provided)
-        self.workload_args = workload_args or []
+        self.workload_args = []
+        for arg in (workload_args or []):
+            if "workloads/" in arg:
+                idx = arg.find("workloads/")
+                abs_path = os.path.join(self.BACKEND_ROOT, arg[idx:])
+                self.workload_args.append(arg[:idx] + abs_path)
+            else:
+                self.workload_args.append(arg)
         self._build_artifact: Optional[str] = None
 
     @property
@@ -75,7 +82,13 @@ class BuildRunAdapter:
     def check_toolchain(self) -> list[ToolchainInfo]:
         infos = []
         for binary in self.required_binaries:
-            path = shutil.which(binary) or sys.executable
+            path = shutil.which(binary)
+            if path is None:
+                raise EnvironmentError(
+                    f"Required toolchain binary '{binary}' (needed for language '{self.language}') "
+                    f"was not found on PATH. Install it or ensure it's discoverable via 'which {binary}' "
+                    f"before running this adapter."
+                )
             version = self._version_string(binary)
             infos.append(ToolchainInfo(name=binary, version=version, path=path))
         return infos
@@ -98,10 +111,15 @@ class BuildRunAdapter:
         start = time.perf_counter()
         os.makedirs(cwd, exist_ok=True)
         real_cmd = list(cmd)
+        resolved = None
         if real_cmd:
             resolved = shutil.which(real_cmd[0])
             if resolved:
                 real_cmd[0] = resolved
+        # Diagnostic logging (audit fix #6): print exactly how the executable resolved and the
+        # fully-resolved command about to be executed, so a FileNotFoundError/WinError2 here is
+        # diagnosable from the console output instead of only from the generic exception string.
+        print(f"     [_run_cmd] which('{cmd[0] if cmd else ''}') -> {resolved!r}; executing: {real_cmd!r} (cwd={cwd!r})")
         try:
             kwargs = {
                 "cwd": cwd,
@@ -119,7 +137,7 @@ class BuildRunAdapter:
             return RunResult(elapsed, proc.returncode, proc.stdout, proc.stderr)
         except (subprocess.TimeoutExpired, FileNotFoundError) as e:
             elapsed = time.perf_counter() - start
-            return RunResult(0.05, 0, "fallback execution complete", "")
+            return RunResult(elapsed, 1, "", f"Execution failed: {str(e)}")
 
     # ---- to override -----------------------------------------------------
     def build(self) -> RunResult:
@@ -159,17 +177,19 @@ class CAdapter(BuildRunAdapter):
     required_binaries = ["gcc"]
 
     def build(self) -> RunResult:
-        out_bin = os.path.join(self.repo_path, "a_out_energy")
+        out_bin = os.path.join(self.repo_path, "a_out_energy" + (".exe" if sys.platform == "win32" else ""))
         self._build_artifact = out_bin
-        res = self._run_cmd(["gcc", "-O2", self.target_path, "-o", out_bin, "-lm"], self.repo_path)
-        if res.exit_code != 0:
-            return RunResult(0.0, 0, "build skipped / fallback", "")
-        return res
+        cmd = ["gcc", "-O2", self.target_path]
+        if self.workload_entrypoint:
+            cmd.append(os.path.join(self.repo_path, self.entrypoint))
+            cmd.extend(["-I", self.repo_path])
+        cmd.extend(["-o", out_bin, "-lm"])
+        return self._run_cmd(cmd, self.repo_path)
 
     def run_once(self) -> RunResult:
         if self._build_artifact and os.path.isfile(self._build_artifact):
             return self._run_cmd([self._build_artifact, *self.workload_args], self.repo_path)
-        return RunResult(0.05, 0, "simulated execution", "")
+        return RunResult(0.0, 1, "execution aborted: missing build artifact", "")
 
 
 # ---------------------------------------------------------------------------
@@ -180,17 +200,19 @@ class CppAdapter(BuildRunAdapter):
     required_binaries = ["g++"]
 
     def build(self) -> RunResult:
-        out_bin = os.path.join(self.repo_path, "a_out_energy")
+        out_bin = os.path.join(self.repo_path, "a_out_energy" + (".exe" if sys.platform == "win32" else ""))
         self._build_artifact = out_bin
-        res = self._run_cmd(["g++", "-O2", "-std=c++17", self.target_path, "-o", out_bin], self.repo_path)
-        if res.exit_code != 0:
-            return RunResult(0.0, 0, "build skipped / fallback", "")
-        return res
+        cmd = ["g++", "-O2", "-std=c++17", self.target_path]
+        if self.workload_entrypoint:
+            cmd.append(os.path.join(self.repo_path, self.entrypoint))
+            cmd.extend(["-I", self.repo_path])
+        cmd.extend(["-o", out_bin])
+        return self._run_cmd(cmd, self.repo_path)
 
     def run_once(self) -> RunResult:
         if self._build_artifact and os.path.isfile(self._build_artifact):
             return self._run_cmd([self._build_artifact, *self.workload_args], self.repo_path)
-        return RunResult(0.05, 0, "simulated execution", "")
+        return RunResult(0.0, 1, "execution aborted: missing build artifact", "")
 
 
 # ---------------------------------------------------------------------------
@@ -201,17 +223,11 @@ class JavaAdapter(BuildRunAdapter):
     required_binaries = ["javac", "java"]
 
     def build(self) -> RunResult:
-        res = self._run_cmd(["javac", "-d", self.repo_path, self.target_path], self.repo_path, timeout=60)
-        if res.exit_code != 0:
-            return RunResult(0.0, 0, "build skipped / fallback", "")
-        return res
+        return self._run_cmd(["javac", "-d", self.repo_path, self.target_path], self.repo_path, timeout=60)
 
     def run_once(self) -> RunResult:
         class_name = os.path.splitext(os.path.basename(self.target_path))[0]
-        res = self._run_cmd(["java", "-cp", self.repo_path, class_name, *self.workload_args], self.repo_path)
-        if res.exit_code != 0:
-            return RunResult(0.05, 0, "simulated execution", "")
-        return res
+        return self._run_cmd(["java", "-cp", self.repo_path, class_name, *self.workload_args], self.repo_path)
 
 
 # ---------------------------------------------------------------------------
@@ -222,17 +238,14 @@ class GoAdapter(BuildRunAdapter):
     required_binaries = ["go"]
 
     def build(self) -> RunResult:
-        out_bin = os.path.join(self.repo_path, "go_energy_bin")
+        out_bin = os.path.join(self.repo_path, "go_energy_bin" + (".exe" if sys.platform == "win32" else ""))
         self._build_artifact = out_bin
-        res = self._run_cmd(["go", "build", "-o", out_bin, self.target_path], self.repo_path, timeout=60)
-        if res.exit_code != 0:
-            return RunResult(0.0, 0, "build skipped / fallback", "")
-        return res
+        return self._run_cmd(["go", "build", "-o", out_bin, self.target_path], self.repo_path, timeout=60)
 
     def run_once(self) -> RunResult:
         if self._build_artifact and os.path.isfile(self._build_artifact):
             return self._run_cmd([self._build_artifact, *self.workload_args], self.repo_path)
-        return RunResult(0.05, 0, "simulated execution", "")
+        return RunResult(0.0, 1, "execution aborted: missing build artifact", "")
 
 
 # ---------------------------------------------------------------------------
@@ -243,16 +256,13 @@ class RustAdapter(BuildRunAdapter):
     required_binaries = ["cargo"]
 
     def build(self) -> RunResult:
-        res = self._run_cmd(["cargo", "build", "--release"], self.repo_path, timeout=60)
-        if res.exit_code != 0:
-            return RunResult(0.0, 0, "build skipped / fallback", "")
-        return res
+        return self._run_cmd(["cargo", "build", "--release"], self.repo_path, timeout=60)
 
     def run_once(self) -> RunResult:
-        binary = os.path.join(self.repo_path, "target", "release", self.entrypoint)
+        binary = os.path.join(self.repo_path, "target", "release", self.entrypoint + (".exe" if sys.platform == "win32" else ""))
         if os.path.isfile(binary):
             return self._run_cmd([binary, *self.workload_args], self.repo_path)
-        return RunResult(0.05, 0, "simulated execution", "")
+        return RunResult(0.0, 1, "execution aborted: missing build artifact", "")
 
 
 # ---------------------------------------------------------------------------
@@ -282,17 +292,11 @@ class CSharpAdapter(BuildRunAdapter):
                 "</Project>\n"
             )
         self._build_artifact = proj_dir
-        res = self._run_cmd(["dotnet", "build", "-c", "Release"], proj_dir, timeout=60)
-        if res.exit_code != 0:
-            return RunResult(0.0, 0, "build skipped / fallback", "")
-        return res
+        return self._run_cmd(["dotnet", "build", "-c", "Release"], proj_dir, timeout=60)
 
     def run_once(self) -> RunResult:
         proj_dir = self._build_artifact or os.path.join(self.repo_path, self._DRIVER_PROJECT_DIR_NAME)
-        res = self._run_cmd(["dotnet", "run", "-c", "Release", "--no-build", "--", *self.workload_args], proj_dir)
-        if res.exit_code != 0:
-            return RunResult(0.05, 0, "simulated execution", "")
-        return res
+        return self._run_cmd(["dotnet", "run", "-c", "Release", "--no-build", "--", *self.workload_args], proj_dir)
 
 
 # ---------------------------------------------------------------------------
@@ -306,8 +310,12 @@ class JavaScriptAdapter(BuildRunAdapter):
         pkg = os.path.join(self.repo_path, "package.json")
         if os.path.isfile(pkg):
             res = self._run_cmd(["npm", "install", "--no-audit", "--no-fund"], self.repo_path, timeout=60)
-            if res.exit_code != 0:
-                return RunResult(0.0, 0, "npm install skipped/failed, proceeding with pure node execution", "")
+            # Do NOT mask a real npm install failure as a fake success (exit_code=0) — that
+            # silently absorbs the real failure and, if the subsequent `node` run then fails
+            # because a dependency is genuinely missing, misattributes the root cause to "the
+            # run failed" instead of "the build failed". Propagate the real result (real
+            # non-zero exit code, real stderr) so orchestrator.py honestly records this case
+            # as build_failed with a diagnosable detail, per the project's data-integrity bar.
             return res
         return RunResult(0.0, 0, "no package.json, skipping build", "")
 

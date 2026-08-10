@@ -145,9 +145,15 @@ export function BenchmarkCatalogTab() {
                       {r.patterns_checked} AST Patterns
                     </td>
                     <td>
-                      <span className="badge badge-emerald">
-                        <CheckCircle size={13} /> {r.status}
-                      </span>
+                      {r.excluded ? (
+                        <span className="badge badge-amber" title={r.exclusion_reason || 'Formally excluded from measurement'}>
+                          <Shield size={13} /> Excluded
+                        </span>
+                      ) : (
+                        <span className="badge badge-emerald">
+                          <CheckCircle size={13} /> {r.status}
+                        </span>
+                      )}
                     </td>
                     <td style={{ paddingRight: '24px' }}>
                       <a

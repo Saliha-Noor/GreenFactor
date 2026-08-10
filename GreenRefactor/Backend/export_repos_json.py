@@ -12,13 +12,16 @@ with open(repos_yaml, "r", encoding="utf-8") as f:
 repos_list = []
 for lang, data in cfg.items():
     for repo in data.get("repos", []):
+        excluded = bool(repo.get("excluded"))
         repos_list.append({
             "name": repo["name"],
             "language": lang,
             "entrypoint": repo["entrypoint"],
             "url": repo["url"],
-            "status": "Configured & Ingested",
-            "patterns_checked": len(data.get("patterns", []))
+            "status": "Excluded" if excluded else "Configured & Ingested",
+            "excluded": excluded,
+            "exclusion_reason": repo.get("exclusion_reason") if excluded else None,
+            "patterns_checked": 0 if excluded else len(data.get("patterns", []))
         })
 
 js_content = f"// Automatically generated from Backend/config/repos.yaml ({len(repos_list)} repositories)\n"

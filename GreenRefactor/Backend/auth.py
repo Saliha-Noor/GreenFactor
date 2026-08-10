@@ -43,24 +43,29 @@ def is_valid_password(password: str) -> bool:
 
 SESSION_TTL_SECONDS = 12 * 60 * 60  # 12 hours
 
-# token -> {"email": str, "expires_at": float}
-SESSIONS: Dict[str, dict] = {}
-
+import db
 
 def create_session(email: str) -> str:
     token = secrets.token_urlsafe(32)
-    SESSIONS[token] = {"email": email, "expires_at": time.time() + SESSION_TTL_SECONDS}
+    expires_at = time.time() + SESSION_TTL_SECONDS
+    with db.get_connection() as conn:
+        conn.execute("INSERT INTO sessions (token, email, expires_at) VALUES (?, ?, ?)", (token, email, expires_at))
+        conn.commit()
     return token
 
 
 def _get_session_email(token: str) -> Optional[str]:
-    session = SESSIONS.get(token)
-    if not session:
-        return None
-    if session["expires_at"] < time.time():
-        SESSIONS.pop(token, None)
-        return None
-    return session["email"]
+    with db.get_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT email, expires_at FROM sessions WHERE token = ?", (token,))
+        row = cursor.fetchone()
+        if not row:
+            return None
+        if row["expires_at"] < time.time():
+            conn.execute("DELETE FROM sessions WHERE token = ?", (token,))
+            conn.commit()
+            return None
+        return row["email"]
 
 
 def get_current_user_email(authorization: Optional[str] = Header(default=None)) -> str:

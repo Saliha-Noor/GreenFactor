@@ -48,15 +48,15 @@ print("\n3. Removing unneeded scratch and deprecated files...")
 trash_files = [
     os.path.join(backend_dir, "test_parse.py"),
 ]
-# These three were previously force-deleted unconditionally, on the assumption
-# they were leftover scratch components. That assumption doesn't hold anymore --
-# the current frontend uses these as real, live tabs (same names, still wired to
-# this backend's API) -- so deleting them here would silently break the UI with
-# no confirmation prompt. Only touch them if the caller explicitly opts in.
+# These three are guarded rather than force-deleted: if a project's frontend still has
+# live tab components with these names, deleting them here would silently break the UI
+# with no confirmation prompt. Only touch them if the caller explicitly opts in. (In this
+# project's current Frontend/src/components/, none of these three currently exist, so this
+# is a no-op safety check today — but it's kept correct in case they're reintroduced.)
 frontend_candidates = [
-    os.path.join(project_root, "greenrefactor", "Frontend", "src", "components", "CodePlaygroundTab.jsx"),
-    os.path.join(project_root, "greenrefactor", "Frontend", "src", "components", "RepoExplorerTab.jsx"),
-    os.path.join(project_root, "greenrefactor", "Frontend", "src", "components", "PatternCatalogTab.jsx"),
+    os.path.join(greenrefactor_dir, "Frontend", "src", "components", "CodePlaygroundTab.jsx"),
+    os.path.join(greenrefactor_dir, "Frontend", "src", "components", "RepoExplorerTab.jsx"),
+    os.path.join(greenrefactor_dir, "Frontend", "src", "components", "PatternCatalogTab.jsx"),
 ]
 if "--delete-frontend-scratch" in sys.argv:
     trash_files.extend(frontend_candidates)

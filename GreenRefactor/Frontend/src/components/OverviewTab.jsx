@@ -72,7 +72,10 @@ export function OverviewTab({ summaryData, onLoadSample }) {
             <span style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--text-dim)', fontFamily: 'var(--font-code)', letterSpacing: '0.04em' }}>REPOS EVALUATED</span>
             <Leaf size={16} color="var(--emerald-primary)" />
           </div>
-          <span className="stat-value" style={{ fontSize: '1.6rem', fontWeight: 600, color: 'var(--text-main)', textShadow: 'none' }}>{summaryData?.experiment_info?.repos_evaluated || 0}</span>
+          <span className="stat-value" style={{ fontSize: '1.6rem', fontWeight: 600, color: 'var(--text-main)', textShadow: 'none' }}>
+            {summaryData?.experiment_info?.repos_evaluated || 0}
+            {summaryData?.experiment_info?.total_repos_configured && summaryData.experiment_info.total_repos_configured !== summaryData.experiment_info.repos_evaluated ? <span style={{fontSize: '1rem', color: 'var(--text-dim)'}}> / {summaryData.experiment_info.total_repos_configured}</span> : ''}
+          </span>
           <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', marginTop: '2px' }}>Tested Repositories</span>
         </div>
 

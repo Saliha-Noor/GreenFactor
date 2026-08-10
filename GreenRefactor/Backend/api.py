@@ -31,6 +31,10 @@ sys.path.insert(0, os.path.dirname(__file__))
 from agents.pattern_detection_agent import scan_file, PatternHit
 from agents.refactoring_agent import apply_pattern
 import auth
+import db
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = FastAPI(title="GreenRefactor Engine API", version="2.0.1")
 
@@ -123,24 +127,7 @@ class UserSettingsRequest(BaseModel):
 
 # --- In-Memory State & Default Data ---
 
-def _seed_dev_user() -> dict:
-    # Demo account password. NOTE: rotate this before deploying anywhere
-    # non-local -- it's here only so the existing demo login keeps working.
-    pw_hash, pw_salt = auth.hash_password("greenrefactor-dev")
-    return {
-        "name": "Dr. Alex Vance",
-        "email": "dev@greenrefactor.org",
-        "role": "Lead Researcher",
-        "organization": "Green Compute Initiative",
-        "tdp_watts": "15",
-        "password_hash": pw_hash,
-        "password_salt": pw_salt,
-    }
-
-
-USER_DB: Dict[str, Dict[str, Any]] = {
-    "dev@greenrefactor.org": _seed_dev_user()
-}
+# --- Default Data ---
 
 
 def public_user(user: dict) -> dict:
@@ -258,13 +245,16 @@ def load_repos_yaml() -> List[Dict[str, Any]]:
     for lang, data in cfg.items():
         if isinstance(data, dict):
             for repo in data.get("repos", []):
+                excluded = bool(repo.get("excluded"))
                 repos_list.append({
                     "name": repo.get("name"),
                     "language": lang,
                     "entrypoint": repo.get("entrypoint", ""),
                     "url": repo.get("url", ""),
-                    "status": "Configured & Ingested",
-                    "patterns_checked": len(data.get("patterns", []))
+                    "status": "Excluded" if excluded else "Configured & Ingested",
+                    "excluded": excluded,
+                    "exclusion_reason": repo.get("exclusion_reason") if excluded else None,
+                    "patterns_checked": 0 if excluded else len(data.get("patterns", []))
                 })
     return repos_list
 
@@ -486,7 +476,13 @@ def refactor_code(req: RefactorRequest):
 def login(req: LoginRequest, request: Request):
     auth.check_rate_limit(f"login:{request.client.host if request.client else 'unknown'}")
     email = req.email.lower().strip()
-    user = USER_DB.get(email)
+    
+    with db.get_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM users WHERE email = ?", (email,))
+        row = cursor.fetchone()
+        user = dict(row) if row else None
+
     # Verify password hash against stored credentials
     if not user or not auth.verify_password(req.password, user["password_hash"], user["password_salt"]):
         raise HTTPException(status_code=401, detail="Invalid email or password")
@@ -501,19 +497,26 @@ def signup(req: SignupRequest, request: Request):
         raise HTTPException(status_code=400, detail="Invalid email address")
     if not auth.is_valid_password(req.password):
         raise HTTPException(status_code=400, detail="Password must be at least 8 characters")
-    if email in USER_DB:
-        raise HTTPException(status_code=409, detail="An account with this email already exists")
-    pw_hash, pw_salt = auth.hash_password(req.password)
-    user = {
-        "name": req.name or "New Developer",
-        "email": email,
-        "role": "Green Software Engineer",
-        "organization": req.institution or "Green Compute Initiative",
-        "tdp_watts": "15",
-        "password_hash": pw_hash,
-        "password_salt": pw_salt,
-    }
-    USER_DB[email] = user
+    
+    with db.get_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT email FROM users WHERE email = ?", (email,))
+        if cursor.fetchone():
+            raise HTTPException(status_code=409, detail="An account with this email already exists")
+        
+        pw_hash, pw_salt = auth.hash_password(req.password)
+        name = req.name or "New Developer"
+        role = "Green Software Engineer"
+        organization = req.institution or "Green Compute Initiative"
+        tdp_watts = "15"
+        
+        conn.execute("INSERT INTO users (email, name, role, organization, tdp_watts, password_hash, password_salt) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                    (email, name, role, organization, tdp_watts, pw_hash, pw_salt))
+        conn.commit()
+
+        cursor.execute("SELECT * FROM users WHERE email = ?", (email,))
+        user = dict(cursor.fetchone())
+
     token = auth.create_session(email)
     return {"success": True, "user": public_user(user), "token": token}
 
@@ -526,22 +529,35 @@ def reset_password(req: ResetPasswordRequest, request: Request):
 
 @app.get("/api/user")
 def get_user_profile(current_email: str = Depends(auth.get_current_user_email)):
-    user = USER_DB.get(current_email)
-    if not user:
+    with db.get_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM users WHERE email = ?", (current_email,))
+        row = cursor.fetchone()
+        
+    if not row:
         raise HTTPException(status_code=404, detail="User not found")
-    return {"user": public_user(user)}
+    return {"user": public_user(dict(row))}
 
 @app.post("/api/user/settings")
 def update_user_settings(req: UserSettingsRequest, current_email: str = Depends(auth.get_current_user_email)):
-    user = USER_DB.get(current_email)
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-    if req.name: user["name"] = req.name
-    if req.role: user["role"] = req.role
-    if req.organization: user["organization"] = req.organization
-    if req.tdp_watts: user["tdp_watts"] = req.tdp_watts
-    USER_DB[current_email] = user
-    return {"success": True, "user": public_user(user)}
+    with db.get_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM users WHERE email = ?", (current_email,))
+        row = cursor.fetchone()
+        if not row:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        user_dict = dict(row)
+        if req.name: user_dict["name"] = req.name
+        if req.role: user_dict["role"] = req.role
+        if req.organization: user_dict["organization"] = req.organization
+        if req.tdp_watts: user_dict["tdp_watts"] = req.tdp_watts
+        
+        conn.execute("UPDATE users SET name = ?, role = ?, organization = ?, tdp_watts = ? WHERE email = ?",
+                    (user_dict["name"], user_dict["role"], user_dict["organization"], user_dict["tdp_watts"], current_email))
+        conn.commit()
+        
+    return {"success": True, "user": public_user(user_dict)}
 
 @app.get("/api/export/pdf")
 def export_benchmark_pdf():

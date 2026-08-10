@@ -26,10 +26,14 @@ def clone_all(target_lang: str | None = None):
         languages = all_languages
 
     for lang in languages:
-        repos = cfg.get(lang, {}).get("repos", [])
+        all_repos = cfg.get(lang, {}).get("repos", [])
+        excluded = [r for r in all_repos if r.get("excluded")]
+        repos = [r for r in all_repos if not r.get("excluded")]
         print(f"\n==========================================")
-        print(f"Starting ingestion for {len(repos)} [{lang.upper()}] repositories")
+        print(f"Starting ingestion for {len(repos)} [{lang.upper()}] repositories ({len(excluded)} formally excluded, skipped)")
         print(f"==========================================")
+        for r in excluded:
+            print(f"  [skip] {r['name']} — excluded: {r.get('exclusion_reason', 'no reason recorded')}")
 
         for repo in repos:
             name = repo.get("name")

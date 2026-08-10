@@ -120,17 +120,20 @@ def measure_n_runs(adapter, n: int = 30, idle_baseline_j: float = 0.0) -> list[R
             result, energy = _measure_rapl(adapter.run_once)
         else:
             result, energy = _measure_tdp(adapter.run_once)
-        if energy is not None:
-            energy = max(energy - idle_baseline_j, 0.0)
-        measurements.append(
-            RunMeasurement(
-                run_index=i,
-                elapsed_seconds=result.elapsed_seconds,
-                exit_code=result.exit_code,
-                energy_joules=energy,
-                mode=mode,
+        if result.exit_code == 0:
+            if energy is not None:
+                energy = max(energy - idle_baseline_j, 0.0)
+            measurements.append(
+                RunMeasurement(
+                    run_index=i,
+                    elapsed_seconds=result.elapsed_seconds,
+                    exit_code=result.exit_code,
+                    energy_joules=energy,
+                    mode=mode,
+                )
             )
-        )
+    if not measurements:
+        raise RuntimeError(f"All {n} runs failed (non-zero exit code). Cannot measure baseline energy. Last error output: {result.stderr}")
     return measurements
 
 

@@ -43,7 +43,15 @@ export function Header({ activeTab, setActiveTab, user, theme, setTheme, onOpenH
           {/* Right Header Controls */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
 
-
+            <button
+              onClick={onOpenHelp}
+              className="btn-secondary"
+              title="Help & FAQs"
+              style={{ padding: '6px 10px', display: 'flex', alignItems: 'center', gap: '5px' }}
+            >
+              <HelpCircle size={15} color="var(--emerald-primary)" />
+              <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)' }}>Help</span>
+            </button>
 
             <button
               onClick={toggleTheme}

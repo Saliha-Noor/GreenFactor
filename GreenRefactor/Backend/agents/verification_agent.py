@@ -186,5 +186,5 @@ def verify_before_after(repo_path: str, language: str, file_path: str, adapter=N
     if baseline_recheck.passed:
         note = "refactor broke tests, restored original — case REJECTED for this pattern"
     else:
-        note = "baseline ALSO fails verification — pre-existing issue, not the refactor's fault; still rejecting this case from measurement to be safe"
+        note = f"baseline ALSO fails verification \u2014 pre-existing issue, not the refactor's fault; still rejecting this case from measurement to be safe. Detail: {baseline_recheck.detail}"
     return False, after, note

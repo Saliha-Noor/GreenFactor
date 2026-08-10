@@ -8,7 +8,7 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends gcc g++ gfortran libopenblas-dev && \
     rm -rf /var/lib/apt/lists/*
 
-COPY requirements.txt /build/
+COPY Backend/requirements.txt /build/requirements.txt
 # Pip upgrade only (setuptools and msgpack are handled here)
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
